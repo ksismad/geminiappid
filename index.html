@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced App ID Analyzer Pro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #059669;
+      --secondary-dark: #047857;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      min-height: 100vh;
+      box-shadow: var(--shadow-xl);
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 2rem;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header h1 {
+      margin: 0 0 0.5rem;
+      font-size: 2.25rem;
+      font-weight: 700;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    .user-info {
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .nav-menu {
+      background: var(--gray-800);
+      display: flex;
+      padding: 0 2rem;
+    }
+
+    .nav-item {
+      padding: 1rem 1.5rem;
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-bottom: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom-color: var(--primary);
+    }
+
+    .content-section {
+      padding: 2rem;
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--gray-800);
+      font-weight: 600;
+      border-bottom: 2px solid var(--gray-200);
+      padding-bottom: 0.5rem;
+    }
+
+    .upload-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .upload-box {
+      background: var(--gray-100);
+      border: 2px dashed var(--gray-300);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .upload-box h3 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      color: var(--gray-700);
+    }
+
+    .upload-box.source2 {
+      border-color: var(--secondary);
+      background: rgba(5, 150, 105, 0.05);
+    }
+
+    .upload-box.source2::after {
+      content: "(Paid Source)";
+      color: var(--secondary);
+      font-size: 0.875rem;
+      display: block;
+      margin-top: 0.5rem;
+      font-weight: 500;
+    }
+
+    .upload-box.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .file-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      user-select: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(135deg, var(--secondary-dark), var(--secondary));
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-info {
+      background: var(--info);
+      color: white;
+    }
+
+    .btn-info:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn:disabled {
+      background: var(--gray-300);
+      color: var(--gray-500);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .file-info {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(5, 150, 105, 0.1);
+      color: var(--secondary-dark);
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .file-info.show {
+      display: inline-block;
+    }
+
+    .file-list {
+      margin-top: 1rem;
+      padding-left: 0;
+      list-style-type: none;
+    }
+
+    .file-list li {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.9375rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .file-list li:last-child {
+      border-bottom: none;
+    }
+
+    .merge-btn {
+      margin-top: 1rem;
+    }
+
+    .mapping-group {
+      margin-bottom: 2rem;
+      background: var(--gray-50);
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mapping-group h3 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      color: var(--gray-700);
+    }
+
+    .mapping-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .mapping-row label {
+      min-width: 150px;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+
+    select, input[type="number"], input[type="text"] {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 0.5rem;
+      font-size: 0.9375rem;
+      min-width: 200px;
+      background: white;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .options-section {
+      margin-bottom: 2rem;
+    }
+
+    .option-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .checkbox-group input {
+      margin-right: 0.75rem;
+    }
+
+    .checkbox-group label {
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+
+    .gst-options {
+      margin-top: 1rem;
+      background: rgba(14, 165, 233, 0.05);
+      border-left: 4px solid var(--info);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .gst-options h4 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: var(--gray-700);
+    }
+
+    .gst-options label {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 1.5rem;
+      font-size: 0.9375rem;
+    }
+
+    .gst-options input {
+      margin-right: 0.5rem;
+    }
+
+    .commission-input {
+      margin-top: 1rem;
+      background: rgba(5, 150, 105, 0.05);
+      border-left: 4px solid var(--secondary);
+      padding: 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .commission-input h4 {
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      color: var(--gray-700);
+    }
+
+    .commission-input input {
+      width: 100px;
+      margin-right: 0.5rem;
+    }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 1rem;
+      margin: 2rem 0;
+      font-size: 1.1rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--primary);
+    }
+
+    .stat-card.warning {
+      border-top-color: var(--warning);
+    }
+
+    .stat-card.danger {
+      border-top-color: var(--danger);
+    }
+
+    .stat-card.success {
+      border-top-color: var(--secondary);
+    }
+
+    .stat-card.info {
+      border-top-color: var(--info);
+    }
+
+    .stat-card h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-subtext {
+      font-size: 0.875rem;
+      color: var(--gray-500);
+    }
+
+    .alert-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .alert-box {
+      background: white;
+      border-left: 5px solid var(--warning);
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      height: 100%;
+    }
+
+    .alert-box.empty {
+      background: var(--gray-50);
+      border-left-color: var(--gray-400);
+    }
+
+    .alert-box.danger {
+      border-left-color: var(--danger);
+    }
+
+    .alert-box.success {
+      border-left-color: var(--secondary);
+    }
+
+    .alert-box.info {
+      border-left-color: var(--info);
+    }
+
+    .alert-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--warning);
+    }
+
+    .alert-box.empty .alert-title {
+      color: var(--gray-500);
+    }
+
+    .alert-box.danger .alert-title {
+      color: var(--danger);
+    }
+
+    .alert-box.success .alert-title {
+      color: var(--secondary);
+    }
+
+    .alert-box.info .alert-title {
+      color: var(--info);
+    }
+
+    .alert-count {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--warning-dark);
+      margin-bottom: 1rem;
+    }
+
+    .alert-box.empty .alert-count {
+      color: var(--gray-500);
+    }
+
+    .alert-box.danger .alert-count {
+      color: var(--danger);
+    }
+
+    .alert-box.success .alert-count {
+      color: var(--secondary);
+    }
+
+    .alert-box.info .alert-count {
+      color: var(--info);
+    }
+
+    .alert-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9375rem;
+      margin-top: 1rem;
+    }
+
+    .alert-table th, .alert-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .alert-table th {
+      background: var(--gray-50);
+      color: var(--gray-700);
+      font-weight: 600;
+    }
+
+    .alert-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .amount-cell {
+      text-align: right;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .amount-cell.positive {
+      color: var(--secondary);
+    }
+
+    .amount-cell.negative {
+      color: var(--danger);
+    }
+
+    .paid-cell {
+      color: var(--secondary);
+      font-weight: 600;
+    }
+
+    .unpaid-cell {
+      color: var(--danger);
+      font-weight: 600;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-overlay.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 4px solid rgba(99, 102, 241, 0.1);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .error-message {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(220, 38, 38, 0.1);
+      color: var(--danger);
+      border-radius: 0.5rem;
+      display: none;
+      border-left: 4px solid var(--danger);
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .success-message {
+      margin: 1rem 0;
+      padding: 1rem;
+      background: rgba(5, 150, 105, 0.1);
+      color: var(--secondary-dark);
+      border-radius: 0.5rem;
+      display: none;
+      border-left: 4px solid var(--secondary);
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .export-btn {
+      margin-top: 1rem;
+    }
+
+    /* Manual Calculation Section */
+    .manual-compare-section {
+      margin-top: 2rem;
+    }
+
+    .manual-compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .manual-compare-box {
+      background: var(--gray-50);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .manual-compare-box h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: var(--gray-700);
+    }
+
+    .manual-compare-textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.75rem;
+      border: 1px solid var(--gray-300);
+      border-radius: 0.5rem;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 0.875rem;
+    }
+
+    .manual-compare-btn {
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .manual-compare-results {
+      margin-top: 2rem;
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .manual-compare-results h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      color: var(--gray-700);
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .result-table th, .result-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .result-table th {
+      background: var(--gray-50);
+      color: var(--gray-700);
+      font-weight: 600;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--gray-200);
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      font-weight: 600;
+      color: var(--gray-600);
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--primary-dark);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    /* Source file info in results */
+    .source-file-info {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Enhanced commission display */
+    .commission-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background-color: rgba(5, 150, 105, 0.1);
+      color: var(--secondary-dark);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 0;
+        border-radius: 0;
+      }
+      
+      .header {
+        padding: 1.5rem;
+      }
+      
+      .content-section {
+        padding: 1.5rem;
+      }
+      
+      .upload-section {
+        grid-template-columns: 1fr;
+      }
+      
+      .alert-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .manual-compare-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="user-info" id="user-info">User: ksismad | UTC 2025-06-20 20:51:09</div>
+      <h1>🔍 Advanced App ID Analyzer Pro</h1>
+      <p>Comprehensive Payment Reconciliation & Analysis Tool</p>
+    </div>
+
+    <nav class="nav-menu">
+      <a href="#" class="nav-item active" data-content="main-analysis">Main Analysis</a>
+      <a href="#" class="nav-item" data-content="manual-comparison">Manual Comparison</a>
+    </nav>
+
+    <!-- Main Analysis Section -->
+    <div id="main-analysis" class="content-section active">
+      <h2 class="section-title">Data Sources</h2>
+      <div class="upload-section">
+        <div class="upload-box" id="drop1">
+          <h3>Source 1 Files</h3>
+          <input type="file" id="file-input-1" class="file-input" multiple accept=".xlsx,.xls,.csv">
+          <button class="btn btn-primary" id="upload-btn-1">Choose Files</button>
+          <div id="file-info-1" class="file-info"></div>
+          <ul id="file-list-1" class="file-list"></ul>
+          <button id="merge-btn-1" class="btn btn-info merge-btn" style="display:none;">Merge S1 Files</button>
+        </div>
+        <div class="upload-box source2" id="drop2">
+          <h3>Source 2 File (Always Paid)</h3>
+          <input type="file" id="file-input-2" class="file-input" accept=".xlsx,.xls,.csv">
+          <button class="btn btn-secondary" id="upload-btn-2">Choose File</button>
+          <div id="file-info-2" class="file-info"></div>
+        </div>
+      </div>
+
+      <div id="column-mappings">
+        <h2 class="section-title">Column Mappings</h2>
+        <div class="mapping-group">
+          <div id="mapping-fields"></div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <h2 class="section-title">Analysis Options</h2>
+        <div class="option-group">
+          <div class="checkbox-group">
+            <input type="checkbox" id="include-commission">
+            <label for="include-commission">Include Commission Analysis</label>
+          </div>
+          
+          <div class="gst-options">
+            <h4>GST Options (S1 Only)</h4>
+            <label><input type="checkbox" id="apply-gst"> Apply 18% GST to S1 amounts</label>
+            <label><input type="checkbox" id="gst-round" disabled> Round GST amounts</label>
+          </div>
+
+          <div class="commission-input" id="commission-input" style="display: none;">
+            <h4>Commission Analysis</h4>
+            <label>
+              Desired Commission Percentage:
+              <input type="number" id="desired-commission" min="0" max="100" step="0.01" value="2.00"> %
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="error-message" class="error-message"></div>
+      <div id="success-message" class="success-message"></div>
+      <button id="analyze-btn" class="btn btn-secondary analyze-btn" disabled>Analyze Data</button>
+
+      <div id="results-section" style="display: none;">
+        <div class="tabs">
+          <div class="tab active" data-tab="summary">Summary View</div>
+          <div class="tab" data-tab="detailed">Detailed Results</div>
+          <div class="tab" data-tab="merged">Merged Data</div>
+        </div>
+
+        <div id="summary-view" class="tab-content active">
+          <h2 class="section-title">Analysis Summary</h2>
+          <div class="stats-grid" id="stats-grid"></div>
+          <div id="results" class="alert-container"></div>
+        </div>
+
+        <div id="detailed-view" class="tab-content">
+          <h2 class="section-title">Detailed Results</h2>
+          <div id="detailed-results"></div>
+          <button id="export-detailed-btn" class="btn btn-primary export-btn">Export Detailed Report</button>
+        </div>
+
+        <div id="merged-view" class="tab-content">
+          <h2 class="section-title">Merged Data View</h2>
+          <div id="merged-results"></div>
+          <button id="export-merged-btn" class="btn btn-secondary export-btn">Export Merged Data</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Comparison Section -->
+    <div id="manual-comparison" class="content-section">
+      <h2 class="section-title">App ID Comparison</h2>
+      <p>Enter App IDs to compare between Source 1 and Source 2</p>
+      
+      <div class="manual-compare-grid">
+        <div class="manual-compare-box">
+          <h3>Source 1 App IDs</h3>
+          <textarea id="manual-s1-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+Example:
+APP123
+APP456
+APP789"></textarea>
+          <button id="compare-manual-btn" class="btn btn-primary manual-compare-btn">Compare App IDs</button>
+        </div>
+        
+        <div class="manual-compare-box">
+          <h3>Source 2 App IDs</h3>
+          <textarea id="manual-s2-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+Example:
+APP123
+APP456
+APP789"></textarea>
+        </div>
+      </div>
+      
+      <div class="manual-compare-results">
+        <h3>Comparison Results</h3>
+        <div id="manual-results-container">
+          <p>Enter App IDs in both boxes and click "Compare App IDs" to see results</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    // Enhanced AppState management with validation
+    const AppState = (() => {
+      let state = {
+        source1Files: [],
+        source2Files: [],
+        columnMappings: {},
+        analysisOptions: {
+          includeCommission: false,
+          applyGST: false,
+          gstRound: false,
+          desiredCommission: 2.0
+        },
+        analysisResults: null,
+        mergedData: null
+      };
+
+      const validateState = () => {
+        const { source1Files, source2Files, columnMappings } = state;
+        const required = ['appId', 'amount', 'date'];
+        
+        // Validate files
+        if (source1Files.length === 0 || source2Files.length === 0) {
+          return false;
+        }
+        
+        // Validate column mappings for required fields
+        return required.every(id => {
+          const mapping = columnMappings[id];
+          return mapping && 
+                 mapping.source1 !== undefined && mapping.source1 !== "" && 
+                 (id === 'commission' || (mapping.source2 !== undefined && mapping.source2 !== ""));
+        });
+      };
+
+      return {
+        getState: () => ({ ...state }),
+        setState: (newState) => { 
+          state = { ...state, ...newState }; 
+          return validateState();
+        },
+        resetAnalysis: () => { 
+          state.analysisResults = null;
+          state.mergedData = null;
+        },
+        isValid: validateState
+      };
+    })();
+
+    // DOM References
+    const DOM = {
+      // Main Analysis
+      fileInput1: document.getElementById('file-input-1'),
+      fileInput2: document.getElementById('file-input-2'),
+      uploadBtn1: document.getElementById('upload-btn-1'),
+      uploadBtn2: document.getElementById('upload-btn-2'),
+      drop1: document.getElementById('drop1'),
+      drop2: document.getElementById('drop2'),
+      fileInfo1: document.getElementById('file-info-1'),
+      fileInfo2: document.getElementById('file-info-2'),
+      fileList1: document.getElementById('file-list-1'),
+      mergeBtn1: document.getElementById('merge-btn-1'),
+      mappingFields: document.getElementById('mapping-fields'),
+      includeCommission: document.getElementById('include-commission'),
+      applyGST: document.getElementById('apply-gst'),
+      gstRound: document.getElementById('gst-round'),
+      desiredCommission: document.getElementById('desired-commission'),
+      commissionInput: document.getElementById('commission-input'),
+      analyzeBtn: document.getElementById('analyze-btn'),
+      resultsSection: document.getElementById('results-section'),
+      results: document.getElementById('results'),
+      statsGrid: document.getElementById('stats-grid'),
+      loadingOverlay: document.getElementById('loading-overlay'),
+      errorMessage: document.getElementById('error-message'),
+      successMessage: document.getElementById('success-message'),
+      userInfo: document.getElementById('user-info'),
+      exportDetailedBtn: document.getElementById('export-detailed-btn'),
+      exportMergedBtn: document.getElementById('export-merged-btn'),
+      detailedResults: document.getElementById('detailed-results'),
+      mergedResults: document.getElementById('merged-results'),
+      
+      // Manual Comparison
+      manualS1Data: document.getElementById('manual-s1-data'),
+      manualS2Data: document.getElementById('manual-s2-data'),
+      compareManualBtn: document.getElementById('compare-manual-btn'),
+      manualResultsContainer: document.getElementById('manual-results-container'),
+      
+      // Navigation
+      navItems: document.querySelectorAll('.nav-item'),
+      contentSections: document.querySelectorAll('.content-section'),
+      
+      // Tabs
+      tabs: document.querySelectorAll('.tab'),
+      tabContents: document.querySelectorAll('.tab-content')
+    };
+
+    // UI Manager for controlling UI state
+    const UIManager = {
+      resetAnalysisUI: () => {
+        DOM.resultsSection.style.display = 'none';
+        AppState.resetAnalysis();
+        DOM.results.innerHTML = '';
+        DOM.statsGrid.innerHTML = '';
+        DOM.detailedResults.innerHTML = '';
+        DOM.mergedResults.innerHTML = '';
+        // Reset tabs to default
+        const tabsContainer = DOM.resultsSection.querySelector('.tabs');
+        tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tabsContainer.querySelector('.tab[data-tab="summary"]').classList.add('active');
+        DOM.resultsSection.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('summary-view').classList.add('active');
+      }
+    };
+
+    // Utility Functions with enhanced error handling
+    const Utils = {
+      showLoading: () => DOM.loadingOverlay.classList.add('show'),
+      hideLoading: () => DOM.loadingOverlay.classList.remove('show'),
+      
+      showError: (msg) => {
+        console.error("Error:", msg);
+        DOM.errorMessage.textContent = msg;
+        DOM.errorMessage.classList.add('show');
+        setTimeout(() => DOM.errorMessage.classList.remove('show'), 8000);
+      },
+      
+      showSuccess: (msg) => {
+        DOM.successMessage.textContent = msg;
+        DOM.successMessage.classList.add('show');
+        setTimeout(() => DOM.successMessage.classList.remove('show'), 5000);
+      },
+      
+      updateUserInfo: () => {
+        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+        DOM.userInfo.textContent = `User: ksismad | UTC ${now}`;
+      },
+      
+      formatNumberForDisplay: (num, decimals = 2) => {
+        if (typeof num !== 'number' || isNaN(num)) return num;
+        return parseFloat(num.toFixed(decimals)).toLocaleString(undefined, {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      },
+      
+      findMatch: (headers, patterns) => {
+        if (!headers || !patterns) return '';
+        for (let pattern of patterns) {
+          const index = headers.findIndex(h => h && pattern.test(String(h)));
+          if (index !== -1) return index;
+        }
+        return '';
+      },
+      
+      getS1Status: (row, statusIndex, commissionIndex) => {
+        // First check if we have a dedicated status column
+        if (statusIndex !== undefined && statusIndex !== null && statusIndex !== "") {
+          const statusValue = row[statusIndex];
+          if (typeof statusValue === 'string') {
+            const lowerStatus = statusValue.toLowerCase().trim();
+            if (lowerStatus.includes('paid') || lowerStatus === 'yes' || lowerStatus === 'y') {
+              return "Paid";
+            }
+            if (lowerStatus.includes('unpaid') || lowerStatus === 'no' || lowerStatus === 'n') {
+              return "Unpaid";
+            }
+          }
+        }
+        
+        // Fall back to commission amount check
+        if (commissionIndex !== undefined && commissionIndex !== null && commissionIndex !== "") {
+          const commValue = row[commissionIndex];
+          const numericValue = Utils.safeParseFloat(commValue);
+          // BUG FIX: Added closing parenthesis to ternary operator
+          return (numericValue === 0 || isNaN(numericValue)) ? "Unpaid" : "Paid";
+        }
+        
+        // Default to Unpaid if no status indicators found
+        return "Unpaid";
+      },
+      
+      applyGSTToS1: (amount) => {
+        if (typeof amount !== 'number') amount = parseFloat(amount) || 0;
+        const { applyGST, gstRound } = AppState.getState().analysisOptions;
+        if (!applyGST) return amount;
+        let result = amount * 1.18;
+        return gstRound ? Math.round(result) : result;
+      },
+      
+      safeParseFloat: (value) => {
+        if (typeof value === 'number') return value;
+        if (typeof value === 'string') {
+          // Remove currency symbols, commas, and keep the decimal point and minus sign
+          const cleaned = value.replace(/[^0-9.-]/g, '');
+          return parseFloat(cleaned) || 0;
+        }
+        return 0;
+      },
+      
+      calculateCommissionPercentage: (amount, commission) => {
+        amount = Utils.safeParseFloat(amount);
+        commission = Utils.safeParseFloat(commission);
+        if (!amount || !commission || amount === 0) return 0;
+        return (commission / amount) * 100;
+      },
+      
+      generateUniqueId: () => {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+      },
+      
+      parseAppIds: (text) => {
+        // Split by new lines or commas, trim whitespace, and filter out empty strings
+        return text.split(/[\n,]/)
+          .map(id => id.trim())
+          .filter(id => id.length > 0);
+      },
+      
+      countOccurrences: (arr) => {
+        return arr.reduce((acc, val) => {
+          acc[val] = (acc[val] || 0) + 1;
+          return acc;
+        }, {});
+      }
+    };
+
+    // File Handling with improved error handling and parallel processing
+    const FileHandler = {
+      init: () => {
+        // Initialize event handlers for options
+        const optionInputs = [DOM.applyGST, DOM.gstRound, DOM.includeCommission, DOM.desiredCommission];
+        optionInputs.forEach(input => input.onchange = FileHandler.handleOptionChange);
+        
+        // File input handlers
+        DOM.uploadBtn1.onclick = e => { e.preventDefault(); DOM.fileInput1.value = ''; DOM.fileInput1.click(); };
+        DOM.uploadBtn2.onclick = e => { e.preventDefault(); DOM.fileInput2.value = ''; DOM.fileInput2.click(); };
+        
+        DOM.fileInput1.onchange = e => { if (e.target.files.length) FileHandler.handleFileSelection(e.target.files, 1); };
+        DOM.fileInput2.onchange = e => { if (e.target.files.length) FileHandler.handleFileSelection(e.target.files, 2); };
+        
+        // Drag and drop handlers
+        [{ drop: DOM.drop1, src: 1 }, { drop: DOM.drop2, src: 2 }].forEach(o => {
+          o.drop.ondragover = e => { e.preventDefault(); e.stopPropagation(); o.drop.classList.add('dragover'); };
+          o.drop.ondragleave = e => { e.preventDefault(); e.stopPropagation(); o.drop.classList.remove('dragover'); };
+          o.drop.ondrop = e => { 
+            e.preventDefault(); e.stopPropagation();
+            o.drop.classList.remove('dragover');
+            if (e.dataTransfer.files.length) FileHandler.handleFileSelection(e.dataTransfer.files, o.src);
+          };
+        });
+        
+        DOM.mergeBtn1.onclick = FileHandler.showMergeDialog;
+      },
+
+      handleOptionChange: () => {
+        const state = AppState.getState();
+        AppState.setState({
+            analysisOptions: {
+                ...state.analysisOptions,
+                applyGST: DOM.applyGST.checked,
+                gstRound: DOM.gstRound.checked,
+                includeCommission: DOM.includeCommission.checked,
+                desiredCommission: parseFloat(DOM.desiredCommission.value) || 0
+            }
+        });
+        DOM.gstRound.disabled = !DOM.applyGST.checked;
+        if (!DOM.applyGST.checked) DOM.gstRound.checked = false;
+        DOM.commissionInput.style.display = DOM.includeCommission.checked ? 'block' : 'none';
+        UIManager.resetAnalysisUI();
+        Analyzer.updateAnalyzeBtn();
+      },
+      
+      handleFileSelection: async (files, src) => {
+        UIManager.resetAnalysisUI();
+        if (!files || files.length === 0) { 
+          Utils.showError('No files selected'); 
+          return; 
+        }
+        
+        if (src === 2 && files.length > 1) {
+          Utils.showError('Source 2 can only accept one file.');
+          return;
+        }
+        
+        Utils.showLoading();
+        
+        try {
+          const fileArray = Array.from(files);
+          const targetState = src === 1 ? 'source1Files' : 'source2Files';
+          const fileListDOM = src === 1 ? DOM.fileList1 : null;
+          const fileInfoDOM = src === 1 ? DOM.fileInfo1 : DOM.fileInfo2;
+          
+          // For both sources, we replace the previous selection for simplicity and to avoid duplicates.
+          AppState.setState({ [targetState]: [] });
+          if (fileListDOM) fileListDOM.innerHTML = '';
+          
+          const processPromises = fileArray.map(file => 
+            FileHandler.processExcelFile(file).then(data => ({ file, data })).catch(err => ({ file, error: err }))
+          );
+          
+          const results = await Promise.all(processPromises);
+          
+          const successfulFiles = [];
+          const failedFiles = [];
+          results.forEach(result => {
+            if (result.error) failedFiles.push(result);
+            else successfulFiles.push({
+              file: result.file,
+              headers: result.data[0],
+              records: result.data.slice(1),
+              fileId: Utils.generateUniqueId(),
+              fileName: result.file.name
+            });
+          });
+          
+          if (failedFiles.length > 0) {
+            const errorMessages = failedFiles.map(f => `${f.file.name}: ${f.error.message || 'Unknown error'}`);
+            Utils.showError(`Failed to process ${failedFiles.length} file(s):\n${errorMessages.join('\n')}`);
+          }
+          
+          if (successfulFiles.length > 0) {
+            AppState.setState({ [targetState]: successfulFiles });
+            if (fileListDOM) {
+              successfulFiles.forEach(fileData => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${fileData.file.name}</span><span>${fileData.records.length} rows</span>`;
+                fileListDOM.appendChild(li);
+              });
+            }
+            fileInfoDOM.textContent = `${successfulFiles.length} file(s) loaded`;
+            fileInfoDOM.classList.add('show');
+            if (src === 1) DOM.mergeBtn1.style.display = successfulFiles.length > 1 ? 'inline-flex' : 'none';
+          }
+          
+          ColumnMapper.setupColumnMappings();
+          Analyzer.updateAnalyzeBtn();
+          
+        } catch (error) {
+          Utils.showError(`Unexpected error during file handling: ${error.message}`);
+        } finally {
+          Utils.hideLoading();
+        }
+      },
+      
+      processExcelFile: (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+              const ws = wb.Sheets[wb.SheetNames[0]];
+              const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+              
+              if (!data || data.length < 2) {
+                return reject(new Error('File has no data rows or is improperly formatted.'));
+              }
+              
+              const cleanedData = data
+                .filter(row => row.some(cell => cell !== null && cell !== ''))
+                .map(row => row.map(cell => typeof cell === 'string' ? cell.trim() : cell));
+              
+              if (cleanedData.length < 2) {
+                return reject(new Error('File has no valid data rows after cleaning.'));
+              }
+              
+              resolve(cleanedData);
+            } catch (err) {
+              reject(new Error(`Error parsing file: ${err.message}`));
+            }
+          };
+          reader.onerror = () => reject(new Error('Error reading file.'));
+          reader.readAsArrayBuffer(file);
+        });
+      },
+      
+      showMergeDialog: () => {
+        const { source1Files } = AppState.getState();
+        if (source1Files.length < 2) return;
+        
+        const fileNames = source1Files.map((f, i) => `${i + 1}. ${f.file.name} (${f.records.length} rows)`);
+        const srcIdx = parseInt(prompt(`Select source file to merge FROM (1-${fileNames.length}):\n\n${fileNames.join('\n')}`)) - 1;
+        if (isNaN(srcIdx) || srcIdx < 0 || srcIdx >= source1Files.length) return Utils.showError("Invalid source file selection.");
+        
+        const tgtIdx = parseInt(prompt(`Select target file to merge INTO (1-${fileNames.length}):\n\n${fileNames.join('\n')}`)) - 1;
+        if (isNaN(tgtIdx) || tgtIdx < 0 || tgtIdx >= source1Files.length || srcIdx === tgtIdx) return Utils.showError("Invalid target file selection.");
+        
+        const sourceFile = source1Files[srcIdx];
+        const targetFile = source1Files[tgtIdx];
+        
+        if (sourceFile.headers.join(',') !== targetFile.headers.join(',')) return Utils.showError("Files have different headers and cannot be merged.");
+        
+        if (!confirm(`Are you sure you want to merge ${sourceFile.records.length} records from "${sourceFile.file.name}" into "${targetFile.file.name}"? The source file will be removed from the list.`)) return;
+        
+        targetFile.records.push(...sourceFile.records);
+        const updatedFiles = source1Files.filter((_, index) => index !== srcIdx);
+        AppState.setState({ source1Files: updatedFiles });
+        
+        DOM.fileList1.innerHTML = '';
+        updatedFiles.forEach(f => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>${f.file.name}</span><span>${f.records.length} rows</span>`;
+          DOM.fileList1.appendChild(li);
+        });
+        
+        DOM.mergeBtn1.style.display = updatedFiles.length > 1 ? 'inline-flex' : 'none';
+        UIManager.resetAnalysisUI();
+        ColumnMapper.setupColumnMappings();
+        Utils.showSuccess(`Successfully merged files. "${targetFile.file.name}" now has ${targetFile.records.length} records.`);
+      }
+    };
+
+    // Column Mapping with improved validation
+    const ColumnMapper = {
+      setupColumnMappings: () => {
+        const { source1Files, source2Files } = AppState.getState();
+        const s1Headers = source1Files[0]?.headers || [];
+        const s2Headers = source2Files[0]?.headers || [];
+        
+        if (s1Headers.length === 0 || s2Headers.length === 0) {
+          DOM.mappingFields.innerHTML = '<p>Please load files for both sources to configure column mappings.</p>';
+          return;
+        }
+        
+        const columns = [
+          { id: 'appId', label: 'App ID', patterns: [/app.*id/i, /id/i, /application/i], required: true },
+          { id: 'amount', label: 'Amount', patterns: [/amount/i, /total/i, /value/i, /payment/i], required: true },
+          { id: 'commission', label: 'Commission (S1)', patterns: [/commiss|tds|fee|charge|deduction/i], s2: false },
+          { id: 'status', label: 'Status (S1)', patterns: [/status|paid|payment.*status/i], s2: false },
+          { id: 'date', label: 'Date', patterns: [/date/i, /timestamp/i, /time/i], required: true }
+        ];
+        
+        let html = '';
+        columns.forEach(col => {
+          const s1Selected = Utils.findMatch(s1Headers, col.patterns);
+          const s2Selected = col.s2 !== false ? Utils.findMatch(s2Headers, col.patterns) : null;
+          
+          html += `
+            <div class="mapping-row">
+              <label>${col.label}${col.required ? ' *' : ''}:</label>
+              <select id="ms1-${col.id}" class="source-select" data-col="${col.id}" data-src="1">
+                <option value="">Select S1 Column</option>
+                ${s1Headers.map((h, i) => `<option value="${i}" ${s1Selected === i ? 'selected' : ''}>${h || `Column ${i + 1}`}</option>`).join('')}
+              </select>
+              ${col.s2 !== false ? `
+                <select id="ms2-${col.id}" class="source-select" data-col="${col.id}" data-src="2">
+                  <option value="">Select S2 Column</option>
+                  ${s2Headers.map((h, i) => `<option value="${i}" ${s2Selected === i ? 'selected' : ''}>${h || `Column ${i + 1}`}</option>`).join('')}
+                </select>
+              ` : `<span style="display:inline-block;min-width:200px;padding:8px;color:var(--gray-500);font-style:italic;">Not applicable for S2</span>`}
+            </div>
+          `;
+        });
+        
+        html += `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-600);"><strong>Status Column Note:</strong> If a dedicated status column is not mapped, status will be inferred from the commission amount (0 = Unpaid).</div>`;
+        
+        DOM.mappingFields.innerHTML = html;
+        document.querySelectorAll('.source-select').forEach(select => {
+          select.addEventListener('change', ColumnMapper.updateColumnMappings);
+        });
+        ColumnMapper.updateColumnMappings();
+      },
+      
+      updateColumnMappings: () => {
+        UIManager.resetAnalysisUI();
+        const columns = ['appId', 'amount', 'commission', 'status', 'date'];
+        const mappings = {};
+        
+        columns.forEach(id => {
+          const s1El = document.getElementById(`ms1-${id}`);
+          const s2El = id !== 'commission' && id !== 'status' ? document.getElementById(`ms2-${id}`) : null;
+          mappings[id] = { 
+            source1: s1El ? s1El.value : '', 
+            source2: s2El ? s2El.value : '' 
+          };
+        });
+        
+        AppState.setState({ columnMappings: mappings });
+        Analyzer.updateAnalyzeBtn();
+      }
+    };
+
+    // Analysis with improved data validation
+    const Analyzer = {
+      updateAnalyzeBtn: () => {
+        const isValid = AppState.isValid();
+        DOM.analyzeBtn.disabled = !isValid;
+        DOM.analyzeBtn.textContent = isValid ? 'Analyze Data' : 'Select Files & Required Mappings';
+      },
+      
+      analyzeData: () => {
+        try {
+          const { source1Files, source2Files, columnMappings, analysisOptions } = AppState.getState();
+          const s2 = source2Files[0];
+          
+          if (source1Files.length === 0 || !s2) return Utils.showError("Missing source files."), {}; 
+          
+          const combinedS1Records = source1Files.flatMap(file => 
+            file.records.map(record => ({ ...record, sourceFile: file.fileName }))
+          );
+          
+          const s2Records = s2.records;
+          
+          const idx = {
+            s1: _.mapValues(columnMappings, 'source1'),
+            s2: _.mapValues(columnMappings, 'source2')
+          };
+          
+          const scenarios = {
+            "S1 Paid but missing in S2": [], "S2 Paid but missing in S1": [],
+            "S2 Paid, S1 Unpaid": [], "S2 Paid, S1 Paid but amount different": [],
+            "S2 Paid, S1 Unpaid and amount different": [],
+            "Commission received higher than desired": [], "Commission received lower than desired": [],
+            "Duplicates in S1": [], "Duplicates in S2": [],
+            "S1 Marked Paid but Commission Missing": [], "S1 Marked Unpaid but Commission Exists": []
+          };
+          
+          const s2Map = new Map(s2Records.map(r => [String(r[idx.s2.appId]), r]));
+          const s1Map = new Map();
+          combinedS1Records.forEach(r => {
+              const appId = String(r[idx.s1.appId]);
+              if (appId) {
+                  if (!s1Map.has(appId)) s1Map.set(appId, []);
+                  s1Map.get(appId).push(r);
+              }
+          });
+
+          const mergedData = [];
+          
+          // Process S1 Records
+          s1Map.forEach((records, appId) => {
+            records.forEach(r1 => {
+              const r2 = s2Map.get(appId);
+              const s1Status = Utils.getS1Status(r1, idx.s1.status, idx.s1.commission);
+              const commissionAmount = idx.s1.commission ? Utils.safeParseFloat(r1[idx.s1.commission]) : null;
+              
+              const amount1Raw = Utils.safeParseFloat(r1[idx.s1.amount]);
+              const amount1GST = Utils.applyGSTToS1(amount1Raw);
+              
+              if (s1Status === "Paid" && (commissionAmount === null || commissionAmount === 0)) {
+                scenarios["S1 Marked Paid but Commission Missing"].push({ AppID: appId, Status: s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
+              }
+              if (s1Status === "Unpaid" && commissionAmount !== null && commissionAmount !== 0) {
+                scenarios["S1 Marked Unpaid but Commission Exists"].push({ AppID: appId, Status: s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
+              }
+
+              const mergedRecord = { AppID: appId, Source: 'S1', Status: s1Status, Amount: amount1GST, PreGSTAmount: amount1Raw, Date: r1[idx.s1.date], File: r1.sourceFile, Commission: commissionAmount };
+              if (commissionAmount !== null) {
+                  mergedRecord.CommissionPercentage = Utils.calculateCommissionPercentage(amount1Raw, commissionAmount);
+              }
+              mergedData.push(mergedRecord);
+
+              if (analysisOptions.includeCommission && s1Status === "Paid" && commissionAmount !== null) {
+                  const desiredCommission = (analysisOptions.desiredCommission / 100) * amount1Raw;
+                  const commissionDiff = commissionAmount - desiredCommission;
+                  const percentageDiff = desiredCommission !== 0 ? (commissionDiff / desiredCommission) * 100 : (commissionDiff > 0 ? Infinity : -Infinity);
+
+                  const commonData = { AppID: appId, Amount: amount1Raw, CommissionReceived: commissionAmount, CommissionDesired: desiredCommission, Difference: commissionDiff, Percentage: percentageDiff, S1_File: r1.sourceFile, Status: s1Status };
+                  if (commissionDiff > 0.01) scenarios["Commission received higher than desired"].push(commonData);
+                  else if (commissionDiff < -0.01) scenarios["Commission received lower than desired"].push(commonData);
+              }
+              
+              if (r2) { // Match found in S2
+                const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
+                const amountDiff = Math.abs(amount2 - amount1GST) > 0.001;
+                
+                const commonData = { AppID: appId, S1_Amount: amount1GST, S2_Amount: amount2, Difference: (amount2 - amount1GST), S1_Date: r1[idx.s1.date], S2_Date: r2[idx.s2.date], S1_File: r1.sourceFile, S2_File: s2.fileName, Status: s1Status };
+
+                if (s1Status === "Paid") {
+                    if (amountDiff) scenarios["S2 Paid, S1 Paid but amount different"].push(commonData);
+                } else { // S1 Unpaid
+                    scenarios[amountDiff ? "S2 Paid, S1 Unpaid and amount different" : "S2 Paid, S1 Unpaid"].push(commonData);
+                }
+              } else if (s1Status === "Paid") { // No match in S2
+                scenarios["S1 Paid but missing in S2"].push({ AppID: appId, S1_Amount: amount1GST, S1_Date: r1[idx.s1.date], S1_File: r1.sourceFile, Status: s1Status });
+              }
+            });
+          });
+
+          // Process S2-only records
+          s2Map.forEach((r2, appId) => {
+            if (!s1Map.has(appId)) {
+                const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
+                scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName, Status: 'Paid' });
+                mergedData.push({ AppID: appId, Source: 'S2', Status: 'Paid', Amount: amount2, Date: r2[idx.s2.date], File: s2.fileName });
+            }
+          });
+
+          // Process Duplicates (more efficient)
+          const processDuplicates = (records, idIndex, fileProp, sourceName) => {
+              const counts = _.countBy(records, r => String(r[idIndex]));
+              for (const [appId, count] of Object.entries(counts)) {
+                  if (count > 1) {
+                      const sample = records.find(r => String(r[idIndex]) === appId);
+                      scenarios[`Duplicates in ${sourceName}`].push({ AppID: appId, Count: count, File: sample[fileProp] });
+                  }
+              }
+          };
+          processDuplicates(combinedS1Records, idx.s1.appId, 'sourceFile', 'S1');
+          processDuplicates(s2Records, idx.s2.appId, 'fileName', 'S2');
+          
+          AppState.setState({ mergedData, analysisResults: scenarios });
+          return scenarios;
+
+        } catch (error) {
+          Utils.showError(`Analysis failed: ${error.message}`);
+          console.error(error);
+          return {};
+        }
+      },
+      
+      displayResults: (scenarios) => {
+        const orderedScenarios = [
+          "S1 Paid but missing in S2", "S2 Paid but missing in S1", "S2 Paid, S1 Unpaid",
+          "S2 Paid, S1 Paid but amount different", "S2 Paid, S1 Unpaid and amount different",
+          "Commission received higher than desired", "Commission received lower than desired",
+          "Duplicates in S1", "Duplicates in S2",
+          "S1 Marked Paid but Commission Missing", "S1 Marked Unpaid but Commission Exists"
+        ];
+        
+        const stats = {
+          totalAlerts: 0, totalAmountDiscrepancies: 0, totalMissingRecords: 0,
+          totalDuplicates: 0, totalAmountDifference: 0, totalCommissionDifference: 0,
+          totalStatusInconsistencies: 0
+        };
+        orderedScenarios.forEach(s => {
+            const records = scenarios[s] || [];
+            if(records.length === 0) return;
+            stats.totalAlerts += records.length;
+            if (s.includes("amount different")) {
+                stats.totalAmountDiscrepancies += records.length;
+                stats.totalAmountDifference += records.reduce((sum, r) => sum + (r.Difference || 0), 0);
+            } else if (s.includes("missing")) stats.totalMissingRecords += records.length;
+            else if (s.includes("Duplicates")) stats.totalDuplicates += records.length;
+            else if (s.includes("Commission") && s.includes("desired")) {
+                stats.totalCommissionDifference += records.reduce((sum, r) => sum + (r.Difference || 0), 0);
+            } else if (s.includes("Marked")) stats.totalStatusInconsistencies += records.length;
+        });
+        
+        DOM.statsGrid.innerHTML = `
+          <div class="stat-card danger"><h3>Total Alerts</h3><div class="stat-value">${stats.totalAlerts}</div><div class="stat-subtext">Potential issues found</div></div>
+          <div class="stat-card warning"><h3>Amount Discrepancies</h3><div class="stat-value">${stats.totalAmountDiscrepancies}</div><div class="stat-subtext">Payment amount mismatches</div></div>
+          <div class="stat-card info"><h3>Missing Records</h3><div class="stat-value">${stats.totalMissingRecords}</div><div class="stat-subtext">Records in one source only</div></div>
+          <div class="stat-card ${stats.totalAmountDifference >= 0 ? 'success' : 'danger'}"><h3>Net Amount Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalAmountDifference)}</div><div class="stat-subtext">S2 vs S1 total difference</div></div>
+          ${analysisOptions.includeCommission ? `<div class="stat-card ${stats.totalCommissionDifference >= 0 ? 'danger' : 'success'}"><h3>Net Commission Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalCommissionDifference)}</div><div class="stat-subtext">Received vs. Desired</div></div>` : ''}
+          ${stats.totalStatusInconsistencies > 0 ? `<div class="stat-card danger"><h3>Status Inconsistencies</h3><div class="stat-value">${stats.totalStatusInconsistencies}</div><div class="stat-subtext">Paid/Unpaid mismatches</div></div>` : ''}
+        `;
+        
+        let summaryHtml = '';
+        orderedScenarios.forEach(scenarioName => {
+            const records = scenarios[scenarioName] || [];
+            const isEmpty = records.length === 0;
+            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
+            summaryHtml += `<div class="${boxClass}"><div class="alert-title">${scenarioName}</div><div class="alert-count">${records.length} records</div>`;
+            if (!isEmpty) {
+                const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h !== 'Status');
+                summaryHtml += `<table class="alert-table"><thead><tr>${headers.map(h => `<th>${_.startCase(h)}</th>`).join('')}</tr></thead><tbody>`;
+                records.slice(0, 5).forEach(rec => {
+                    summaryHtml += `<tr>${headers.map(h => {
+                        let val = rec[h];
+                        let cls = '';
+                        if (typeof val === 'number') {
+                            cls = 'amount-cell';
+                            if (h === 'Difference' || h === 'Percentage') cls += val < 0 ? ' negative' : ' positive';
+                            val = Utils.formatNumberForDisplay(val);
+                        }
+                        return `<td class="${cls}">${val || 'N/A'}</td>`;
+                    }).join('')}</tr>`;
+                });
+                summaryHtml += `</tbody></table>`;
+                if (records.length > 5) summaryHtml += `<div style="margin-top:0.5rem;font-size:0.85rem;color:var(--gray-500);">+ ${records.length - 5} more records</div>`;
+            } else {
+                summaryHtml += `<div style="color:var(--gray-500);font-style:italic;margin-top:0.5rem;">No records found</div>`;
+            }
+            summaryHtml += `</div>`;
+        });
+        DOM.results.innerHTML = summaryHtml;
+        
+        // Full detailed view
+        let detailedHtml = '';
+        orderedScenarios.forEach(scenarioName => {
+            const records = scenarios[scenarioName] || [];
+            if (records.length === 0) return;
+            const headers = Object.keys(records[0]);
+            detailedHtml += `<h3 style="margin-top:2rem;color:var(--gray-700);">${scenarioName} (${records.length} records)</h3><div style="overflow-x:auto;"><table class="alert-table"><thead><tr>${headers.map(h => `<th>${_.startCase(h)}</th>`).join('')}</tr></thead><tbody>`;
+            records.forEach(rec => {
+                detailedHtml += `<tr>${headers.map(h => {
+                    let val = rec[h];
+                    let cls = '';
+                    if (h === 'Status') cls = val === 'Paid' ? 'paid-cell' : 'unpaid-cell';
+                    if (typeof val === 'number') {
+                        cls += ' amount-cell';
+                        if (h === 'Difference' || h === 'Percentage') cls += val < 0 ? ' negative' : ' positive';
+                        val = Utils.formatNumberForDisplay(val);
+                    }
+                    return `<td class="${cls}">${val || 'N/A'}</td>`;
+                }).join('')}</tr>`;
+            });
+            detailedHtml += `</tbody></table></div>`;
+        });
+        DOM.detailedResults.innerHTML = detailedHtml;
+        
+        // Merged data view
+        const { mergedData } = AppState.getState();
+        if (mergedData && mergedData.length > 0) {
+            let mergedHtml = `<div style="margin-bottom:1rem;"><strong>Total Records:</strong> ${mergedData.length} (S1: ${mergedData.filter(d => d.Source === 'S1').length}, S2: ${mergedData.filter(d => d.Source === 'S2').length})</div>`;
+            mergedHtml += `<div style="overflow-x:auto;"><table class="alert-table"><thead><tr><th>App ID</th><th>Source</th><th>Status</th><th>Amount</th><th>Pre-GST Amount</th><th>Date</th><th>File</th><th>Commission</th><th>Commission %</th></tr></thead><tbody>`;
+            mergedData.slice(0, 200).forEach(rec => {
+                mergedHtml += `<tr><td>${rec.AppID || 'N/A'}</td><td>${rec.Source}</td><td class="${rec.Status === 'Paid' ? 'paid-cell' : 'unpaid-cell'}">${rec.Status}</td><td class="amount-cell">${Utils.formatNumberForDisplay(rec.Amount)}</td><td class="amount-cell">${rec.PreGSTAmount ? Utils.formatNumberForDisplay(rec.PreGSTAmount) : 'N/A'}</td><td>${rec.Date || 'N/A'}</td><td>${rec.File || 'N/A'}</td><td class="amount-cell">${rec.Commission !== null ? Utils.formatNumberForDisplay(rec.Commission) : 'N/A'}</td><td class="amount-cell">${rec.CommissionPercentage !== undefined ? Utils.formatNumberForDisplay(rec.CommissionPercentage) + '%' : 'N/A'}</td></tr>`;
+            });
+            if (mergedData.length > 200) mergedHtml += `<tr><td colspan="9" style="text-align:center;padding:1rem;color:var(--gray-500);">+ ${mergedData.length - 200} more records (export to see all)</td></tr>`;
+            mergedHtml += `</tbody></table></div>`;
+            DOM.mergedResults.innerHTML = mergedHtml;
+        }
+        
+        DOM.resultsSection.style.display = 'block';
+        DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
+        Utils.showSuccess("Analysis completed successfully.");
+      },
+      
+      exportToExcel: (data, fileName) => {
+        if (!data || data.length === 0) return Utils.showError("No data to export.");
+        Utils.showLoading();
+        try {
+          const wb = XLSX.utils.book_new();
+          data.forEach(sheet => {
+            if (sheet.records.length > 0) {
+              const ws = XLSX.utils.json_to_sheet(sheet.records);
+              XLSX.utils.book_append_sheet(wb, ws, sheet.name.substring(0, 31));
+            }
+          });
+          const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+          XLSX.writeFile(wb, `${fileName}_${timestamp}.xlsx`);
+          Utils.showSuccess(`${fileName} exported successfully.`);
+        } catch (error) {
+          Utils.showError(`Export failed: ${error.message}`);
+          console.error(error);
+        } finally {
+          Utils.hideLoading();
+        }
+      },
+
+      exportDetailedResults: () => {
+          const { analysisResults } = AppState.getState();
+          if (!analysisResults) return Utils.showError("No analysis results to export.");
+          const sheets = Object.entries(analysisResults).map(([name, records]) => ({ name, records }));
+          Analyzer.exportToExcel(sheets, "AppID_Detailed_Report");
+      },
+      
+      exportMergedData: () => {
+          const { mergedData } = AppState.getState();
+          if (!mergedData || mergedData.length === 0) return Utils.showError("No merged data to export.");
+          const exportableData = mergedData.map(r => ({
+              'App ID': r.AppID, 'Source': r.Source, 'Status': r.Status, 'Amount': r.Amount, 'Pre-GST Amount': r.PreGSTAmount,
+              'Date': r.Date, 'File': r.File, 'Commission': r.Commission, 'Commission %': r.CommissionPercentage
+          }));
+          Analyzer.exportToExcel([{ name: "Merged_Data", records: exportableData }], "AppID_Merged_Data");
+      }
+    };
+
+    // Manual Comparison Module
+    const ManualComparison = {
+      compareAppIds: () => {
+        const s1AppIds = Utils.parseAppIds(DOM.manualS1Data.value);
+        const s2AppIds = Utils.parseAppIds(DOM.manualS2Data.value);
+        
+        if (s1AppIds.length === 0 && s2AppIds.length === 0) return Utils.showError("Please enter App IDs in at least one source.");
+        
+        try {
+            const s1Set = new Set(s1AppIds);
+            const s2Set = new Set(s2AppIds);
+            const s1Counts = Utils.countOccurrences(s1AppIds);
+            const s2Counts = Utils.countOccurrences(s2AppIds);
+
+            const results = {
+                "Duplicates in Source 1": Object.entries(s1Counts).filter(([, count]) => count > 1).map(([appId, count]) => ({ AppID: appId, Occurrences: count })),
+                "Duplicates in Source 2": Object.entries(s2Counts).filter(([, count]) => count > 1).map(([appId, count]) => ({ AppID: appId, Occurrences: count })),
+                "Only in Source 1": [...s1Set].filter(id => !s2Set.has(id)).map(id => ({ AppID: id, Count: s1Counts[id] })),
+                "Only in Source 2": [...s2Set].filter(id => !s1Set.has(id)).map(id => ({ AppID: id, Count: s2Counts[id] })),
+                "Common App IDs": [...s1Set].filter(id => s2Set.has(id)).map(id => ({ AppID: id, 'S1 Count': s1Counts[id], 'S2 Count': s2Counts[id] }))
+            };
+            ManualComparison.displayResults(results, s1AppIds.length, s2AppIds.length);
+        } catch (error) {
+            Utils.showError(`Error comparing App IDs: ${error.message}`);
+        }
+      },
+      
+      displayResults: (results, s1Total, s2Total) => {
+        let html = `
+          <div class="stats-grid">
+            <div class="stat-card info"><h3>Source 1 App IDs</h3><div class="stat-value">${s1Total}</div><div class="stat-subtext">${results["Only in Source 1"].length} unique, ${results["Common App IDs"].length} common</div></div>
+            <div class="stat-card info"><h3>Source 2 App IDs</h3><div class="stat-value">${s2Total}</div><div class="stat-subtext">${results["Only in Source 2"].length} unique, ${results["Common App IDs"].length} common</div></div>
+            <div class="stat-card ${results["Duplicates in Source 1"].length > 0 ? 'warning' : 'success'}"><h3>S1 Duplicates</h3><div class="stat-value">${results["Duplicates in Source 1"].length}</div><div class="stat-subtext">App IDs with multiple entries</div></div>
+            <div class="stat-card ${results["Duplicates in Source 2"].length > 0 ? 'warning' : 'success'}"><h3>S2 Duplicates</h3><div class="stat-value">${results["Duplicates in Source 2"].length}</div><div class="stat-subtext">App IDs with multiple entries</div></div>
+          </div>
+        `;
+        
+        const scenarios = ["Duplicates in Source 1", "Duplicates in Source 2", "Only in Source 1", "Only in Source 2", "Common App IDs"];
+        scenarios.forEach(scenario => {
+            const records = results[scenario];
+            if (records.length === 0) return;
+            let boxClass = 'alert-box' + (scenario.includes("Duplicates") ? ' warning' : (scenario.includes("Only in Source 1") ? ' danger' : ' info'));
+            html += `<div class="${boxClass}"><div class="alert-title">${scenario}</div><div class="alert-count">${records.length} unique App IDs</div><table class="result-table"><thead><tr>`;
+            const headers = Object.keys(records[0]);
+            html += headers.map(h => `<th>${h}</th>`).join('') + `</tr></thead><tbody>`;
+            records.forEach(record => {
+                html += `<tr>${headers.map(h => `<td>${record[h]}</td>`).join('')}</tr>`;
+            });
+            html += `</tbody></table></div>`;
+        });
+        
+        DOM.manualResultsContainer.innerHTML = html;
+      }
+    };
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const { analysisOptions } = AppState.getState();
+        FileHandler.init();
+        Utils.updateUserInfo();
+        setInterval(Utils.updateUserInfo, 15000);
+        
+        DOM.analyzeBtn.addEventListener('click', () => {
+          Utils.showLoading();
+          setTimeout(() => { // Allow loading screen to render
+            try {
+              const results = Analyzer.analyzeData();
+              if (Object.keys(results).length) Analyzer.displayResults(results);
+            } catch (error) {
+              Utils.showError(`Analysis failed: ${error.message}`);
+              console.error(error);
+            } finally {
+              Utils.hideLoading();
+            }
+          }, 10);
+        });
+        
+        DOM.exportDetailedBtn.addEventListener('click', Analyzer.exportDetailedResults);
+        DOM.exportMergedBtn.addEventListener('click', Analyzer.exportMergedData);
+        DOM.compareManualBtn.addEventListener('click', ManualComparison.compareAppIds);
+        
+        DOM.navItems.forEach(item => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const contentId = item.getAttribute('data-content');
+            DOM.navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            DOM.contentSections.forEach(sec => sec.classList.toggle('active', sec.id === contentId));
+          });
+        });
+        
+        DOM.tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            const tabName = tab.getAttribute('data-tab');
+            const parentSection = tab.closest('.content-section');
+            parentSection.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            parentSection.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `${tabName}-view`));
+          });
+        });
+        
+        console.log("Advanced App ID Analyzer Pro Initialized");
+      } catch (error) {
+        console.error("Initialization error:", error);
+        document.body.innerHTML = `<div style="padding: 2rem; color: #dc2626; font-size: 1.2rem;">Application failed to initialize. Please check the console. Error: ${error.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html>
