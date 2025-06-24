@@ -1079,7 +1079,6 @@ APP789"></textarea>
         if (commissionIndex !== undefined && commissionIndex !== null && commissionIndex !== "") {
           const commValue = row[commissionIndex];
           const numericValue = Utils.safeParseFloat(commValue);
-          // BUG FIX: Added closing parenthesis to ternary operator
           return (numericValue === 0 || isNaN(numericValue)) ? "Unpaid" : "Paid";
         }
         
@@ -1483,27 +1482,27 @@ APP789"></textarea>
             });
           });
 
-          // Process S2-only records
+          // Process S2-only records and add all S2 to mergedData
           s2Map.forEach((r2, appId) => {
+            const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
             if (!s1Map.has(appId)) {
-                const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
                 scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName, Status: 'Paid' });
-                mergedData.push({ AppID: appId, Source: 'S2', Status: 'Paid', Amount: amount2, Date: r2[idx.s2.date], File: s2.fileName });
             }
+            mergedData.push({ AppID: appId, Source: 'S2', Status: 'Paid', Amount: amount2, Date: r2[idx.s2.date], File: s2.fileName });
           });
 
           // Process Duplicates (more efficient)
-          const processDuplicates = (records, idIndex, fileProp, sourceName) => {
+          const processDuplicates = (records, idIndex, fileProp, sourceName, scenarioName) => {
               const counts = _.countBy(records, r => String(r[idIndex]));
               for (const [appId, count] of Object.entries(counts)) {
                   if (count > 1) {
                       const sample = records.find(r => String(r[idIndex]) === appId);
-                      scenarios[`Duplicates in ${sourceName}`].push({ AppID: appId, Count: count, File: sample[fileProp] });
+                      scenarios[scenarioName].push({ AppID: appId, Count: count, File: sample[fileProp] });
                   }
               }
           };
-          processDuplicates(combinedS1Records, idx.s1.appId, 'sourceFile', 'S1');
-          processDuplicates(s2Records, idx.s2.appId, 'fileName', 'S2');
+          processDuplicates(combinedS1Records, idx.s1.appId, 'sourceFile', 'S1', 'Duplicates in S1');
+          processDuplicates(s2Records, idx.s2.appId, 'fileName', 'S2', 'Duplicates in S2');
           
           AppState.setState({ mergedData, analysisResults: scenarios });
           return scenarios;
@@ -1516,6 +1515,9 @@ APP789"></textarea>
       },
       
       displayResults: (scenarios) => {
+        // *** BUG FIX: Get analysisOptions from state ***
+        const { analysisOptions } = AppState.getState();
+
         const orderedScenarios = [
           "S1 Paid but missing in S2", "S2 Paid but missing in S1", "S2 Paid, S1 Unpaid",
           "S2 Paid, S1 Paid but amount different", "S2 Paid, S1 Unpaid and amount different",
@@ -1722,7 +1724,6 @@ APP789"></textarea>
     // Initialize the application
     document.addEventListener('DOMContentLoaded', () => {
       try {
-        const { analysisOptions } = AppState.getState();
         FileHandler.init();
         Utils.updateUserInfo();
         setInterval(Utils.updateUserInfo, 15000);
