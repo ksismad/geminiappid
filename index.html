@@ -1093,29 +1093,35 @@ APP789"></textarea>
         return '';
       },
       
+      // *** MODIFIED FUNCTION ***
       getS1Status: (row, statusIndex, commissionIndex) => {
+        // First, check for an explicit status string
         if (statusIndex !== undefined && statusIndex !== null && statusIndex !== "") {
             const statusValue = row[statusIndex];
             if (typeof statusValue === 'string') {
                 const lowerStatus = statusValue.toLowerCase().trim();
                 
-                // *** BUG FIX: Check for negative cases FIRST to avoid "not paid" matching "paid". ***
-                if (lowerStatus.includes('unpaid') || lowerStatus.includes('not paid') || lowerStatus === 'no' || lowerStatus === 'n') {
+                const unpaidKeywords = ['not paid', 'unpaid', 'declined', 'pending', 'rejected', 'no', 'n'];
+                const paidKeywords = ['paid', 'ready to download', 'dsc downloaded', 'yes', 'y'];
+
+                if (unpaidKeywords.some(keyword => lowerStatus.includes(keyword))) {
                     return "Unpaid";
                 }
-                if (lowerStatus.includes('paid') || lowerStatus === 'yes' || lowerStatus === 'y') {
+                if (paidKeywords.some(keyword => lowerStatus.includes(keyword))) {
                     return "Paid";
                 }
             }
         }
         
-        // Fall back to commission amount check
+        // If no definitive status string is found, fall back to commission amount check
         if (commissionIndex !== undefined && commissionIndex !== null && commissionIndex !== "") {
           const commValue = row[commissionIndex];
           const numericValue = Utils.safeParseFloat(commValue);
-          return (numericValue === 0 || isNaN(numericValue)) ? "Unpaid" : "Paid";
+          // A commission greater than zero implies it's Paid
+          return (numericValue > 0) ? "Paid" : "Unpaid";
         }
         
+        // Default to Unpaid if no other information is available
         return "Unpaid";
       },
       
@@ -1139,7 +1145,7 @@ APP789"></textarea>
       calculateCommissionPercentage: (amount, commission) => {
         amount = Utils.safeParseFloat(amount);
         commission = Utils.safeParseFloat(commission);
-        if (!amount || !commission || amount === 0) return 0;
+        if (!amount || amount === 0) return 0; // Commission could be 0, that's valid
         return (commission / amount) * 100;
       },
       
@@ -1373,7 +1379,7 @@ APP789"></textarea>
           `;
         });
         
-        html += `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-600);"><strong>Status Column Note:</strong> If a dedicated status column is not mapped, status will be inferred from the commission amount (0 = Unpaid).</div>`;
+        html += `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-600);"><strong>Status Column Note:</strong> Status is determined by keywords (e.g., 'Paid', 'Downloaded', 'Rejected', 'Pending'). If no keyword matches, it falls back to the commission amount (>0 = Paid).</div>`;
         
         DOM.mappingFields.innerHTML = html;
         document.querySelectorAll('.source-select').forEach(select => {
@@ -1464,11 +1470,11 @@ APP789"></textarea>
               if (s1Status === "Paid" && (commissionAmount === null || commissionAmount === 0)) {
                 scenarios["S1 Marked Paid but Commission Missing"].push({ AppID: appId, Status: rawStatusValue || s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
               }
-              if (s1Status === "Unpaid" && commissionAmount !== null && commissionAmount !== 0) {
+              if (s1Status === "Unpaid" && commissionAmount !== null && commissionAmount > 0) {
                 scenarios["S1 Marked Unpaid but Commission Exists"].push({ AppID: appId, Status: rawStatusValue || s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
               }
 
-              // New status checks
+              // New status checks based on raw string value
               const commonStatusData = { AppID: appId, Status: rawStatusValue, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile };
               if (rawStatusValue.includes('downloaded')) {
                   if (commissionAmount === 0) {
@@ -1489,9 +1495,8 @@ APP789"></textarea>
               if (analysisOptions.includeCommission && s1Status === "Paid" && commissionAmount !== null) {
                   const desiredCommission = (analysisOptions.desiredCommission / 100) * amount1Raw;
                   const commissionDiff = commissionAmount - desiredCommission;
-                  const percentageDiff = desiredCommission !== 0 ? (commissionDiff / desiredCommission) * 100 : (commissionDiff > 0 ? Infinity : -Infinity);
-
-                  const commonData = { AppID: appId, Amount: amount1Raw, CommissionReceived: commissionAmount, CommissionDesired: desiredCommission, Difference: commissionDiff, Percentage: percentageDiff, S1_File: r1.sourceFile, Status: s1Status };
+                  
+                  const commonData = { AppID: appId, Amount: amount1Raw, CommissionReceived: commissionAmount, CommissionDesired: desiredCommission, Difference: commissionDiff, S1_File: r1.sourceFile, Status: rawStatusValue };
                   if (commissionDiff > 0.01) scenarios["Commission received higher than desired"].push(commonData);
                   else if (commissionDiff < -0.01) scenarios["Commission received lower than desired"].push(commonData);
               }
@@ -1499,12 +1504,15 @@ APP789"></textarea>
               if (r2) {
                 const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
                 const amountDiff = Math.abs(amount2 - amount1GST) > 0.001;
-                const commonData = { AppID: appId, S1_Amount: amount1GST, S2_Amount: amount2, Difference: (amount2 - amount1GST), S1_Date: r1[idx.s1.date], S2_Date: r2[idx.s2.date], S1_File: r1.sourceFile, S2_File: s2.fileName, Status: s1Status };
+                const commonData = { AppID: appId, S1_Amount: amount1GST, S2_Amount: amount2, Difference: (amount2 - amount1GST), S1_Date: r1[idx.s1.date], S2_Date: r2[idx.s2.date], S1_File: r1.sourceFile, S1_Status: rawStatusValue };
 
-                if (s1Status === "Paid") { if (amountDiff) scenarios["S2 Paid, S1 Paid but amount different"].push(commonData); } 
-                else { scenarios[amountDiff ? "S2 Paid, S1 Unpaid and amount different" : "S2 Paid, S1 Unpaid"].push(commonData); }
+                if (s1Status === "Paid") { 
+                    if (amountDiff) scenarios["S2 Paid, S1 Paid but amount different"].push(commonData); 
+                } else { 
+                    scenarios[amountDiff ? "S2 Paid, S1 Unpaid and amount different" : "S2 Paid, S1 Unpaid"].push(commonData); 
+                }
               } else if (s1Status === "Paid") {
-                scenarios["S1 Paid but missing in S2"].push({ AppID: appId, S1_Amount: amount1GST, S1_Date: r1[idx.s1.date], S1_File: r1.sourceFile, Status: s1Status });
+                scenarios["S1 Paid but missing in S2"].push({ AppID: appId, S1_Amount: amount1GST, S1_Date: r1[idx.s1.date], S1_File: r1.sourceFile, S1_Status: rawStatusValue });
               }
             });
           });
@@ -1512,7 +1520,7 @@ APP789"></textarea>
           s2Map.forEach((r2, appId) => {
             const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
             if (!s1Map.has(appId)) {
-                scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName, Status: 'Paid' });
+                scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName });
             }
             mergedData.push({ AppID: appId, Source: 'S2', Status: 'Paid', Amount: amount2, Date: r2[idx.s2.date], File: s2.fileName });
           });
@@ -1547,9 +1555,7 @@ APP789"></textarea>
           "S2 Paid, S1 Paid but amount different", "S2 Paid, S1 Unpaid and amount different",
           "Commission received higher than desired", "Commission received lower than desired",
           "Duplicates in S1", "Duplicates in S2",
-          "S1 Marked Paid but Commission Missing", "S1 Marked Unpaid but Commission Exists",
-          "S1 Downloaded with Zero Commission", "S1 Ready to Download with Zero Commission",
-          "S1 Ready to Download List"
+          "S1 Marked Paid but Commission Missing", "S1 Marked Unpaid but Commission Exists"
         ];
         
         const stats = {
@@ -1557,7 +1563,10 @@ APP789"></textarea>
           totalDuplicates: 0, totalAmountDifference: 0, totalCommissionDifference: 0,
           totalStatusInconsistencies: 0
         };
-        orderedScenarios.forEach(s => {
+
+        const alertableScenarios = [...orderedScenarios, "S1 Downloaded with Zero Commission", "S1 Ready to Download with Zero Commission"];
+
+        alertableScenarios.forEach(s => {
             const records = scenarios[s] || [];
             if(records.length === 0) return;
             stats.totalAlerts += records.length;
@@ -1584,7 +1593,7 @@ APP789"></textarea>
         orderedScenarios.forEach(scenarioName => {
             const records = scenarios[scenarioName] || [];
             const isEmpty = records.length === 0;
-            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') || scenarioName.includes('Zero Commission') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
+            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') || scenarioName.includes('Unpaid') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
             summaryHtml += `<div class="${boxClass}"><div class="alert-title">${scenarioName}</div><div class="alert-count">${records.length} records</div>`;
             if (!isEmpty) {
                 const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h.toLowerCase() !== 'status');
