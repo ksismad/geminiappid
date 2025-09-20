@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -32,745 +33,753 @@
       --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html, body {
-      height: 100%;
-      background: var(--gray-100);
-      color: var(--gray-800);
-      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      line-height: 1.5;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: white;
-      min-height: 100vh;
-      box-shadow: var(--shadow-xl);
-    }
-
-    .header {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      padding: 2rem;
-      position: relative;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .header h1 {
-      margin: 0 0 0.5rem;
-      font-size: 2.25rem;
-      font-weight: 700;
-    }
-
-    .header p {
-      opacity: 0.9;
-      font-size: 1.1rem;
-    }
-
-    .user-info {
-      position: absolute;
-      top: 1rem;
-      right: 2rem;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 0.5rem 1rem;
-      border-radius: 9999px;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .nav-menu {
-      background: var(--gray-800);
-      display: flex;
-      padding: 0 2rem;
-    }
-
-    .nav-item {
-      padding: 1rem 1.5rem;
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      border-bottom: 3px solid transparent;
-    }
-
-    .nav-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .nav-item.active {
-      background: rgba(255, 255, 255, 0.05);
-      border-bottom-color: var(--primary);
-    }
-
-    .content-section {
-      padding: 2rem;
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      color: var(--gray-800);
-      font-weight: 600;
-      border-bottom: 2px solid var(--gray-200);
-      padding-bottom: 0.5rem;
-    }
-
-    .upload-section {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .upload-box {
-      background: var(--gray-100);
-      border: 2px dashed var(--gray-300);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .upload-box h3 {
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-      color: var(--gray-700);
-    }
-
-    .upload-box.source2 {
-      border-color: var(--secondary);
-      background: rgba(5, 150, 105, 0.05);
-    }
-
-    .upload-box.source2::after {
-      content: "(Paid Source)";
-      color: var(--secondary);
-      font-size: 0.875rem;
-      display: block;
-      margin-top: 0.5rem;
-      font-weight: 500;
-    }
-
-    .upload-box.dragover {
-      border-color: var(--primary);
-      background: rgba(99, 102, 241, 0.05);
-    }
-
-    .file-input {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
-      user-select: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background: linear-gradient(135deg, var(--secondary-dark), var(--secondary));
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
-    }
-
-    .btn-info {
-      background: var(--info);
-      color: white;
-    }
-
-    .btn-info:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: var(--shadow);
-    }
-
-    .btn:disabled {
-      background: var(--gray-300);
-      color: var(--gray-500);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .file-info {
-      margin-top: 1rem;
-      padding: 0.75rem 1rem;
-      background: rgba(5, 150, 105, 0.1);
-      color: var(--secondary-dark);
-      border-radius: 0.5rem;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      display: none;
-    }
-
-    .file-info.show {
-      display: inline-block;
-    }
-
-    .file-list {
-      margin-top: 1rem;
-      padding-left: 0;
-      list-style-type: none;
-    }
-
-    .file-list li {
-      padding: 0.5rem;
-      border-bottom: 1px solid var(--gray-200);
-      font-size: 0.9375rem;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .file-list li:last-child {
-      border-bottom: none;
-    }
-
-    .merge-btn {
-      margin-top: 1rem;
-    }
-
-    .mapping-group {
-      margin-bottom: 2rem;
-      background: var(--gray-50);
-      padding: 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .mapping-group h3 {
-      margin-bottom: 1rem;
-      font-size: 1.25rem;
-      color: var(--gray-700);
-    }
-
-    .mapping-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1rem;
-      gap: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .mapping-row label {
-      min-width: 150px;
-      font-weight: 500;
-      color: var(--gray-700);
-    }
-
-    select, input[type="number"], input[type="text"] {
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--gray-300);
-      border-radius: 0.5rem;
-      font-size: 0.9375rem;
-      min-width: 200px;
-      background: white;
-    }
-
-    select:focus, input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    }
-
-    .options-section {
-      margin-bottom: 2rem;
-    }
-
-    .option-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .checkbox-group input {
-      margin-right: 0.75rem;
-    }
-
-    .checkbox-group label {
-      font-weight: 500;
-      color: var(--gray-700);
-    }
-
-    .gst-options {
-      margin-top: 1rem;
-      background: rgba(14, 165, 233, 0.05);
-      border-left: 4px solid var(--info);
-      padding: 1rem;
-      border-radius: 0.5rem;
-    }
-
-    .gst-options h4 {
-      margin-top: 0;
-      margin-bottom: 0.75rem;
-      font-size: 1.1rem;
-      color: var(--gray-700);
-    }
-
-    .gst-options label {
-      display: inline-flex;
-      align-items: center;
-      margin-right: 1.5rem;
-      font-size: 0.9375rem;
-    }
-
-    .gst-options input {
-      margin-right: 0.5rem;
-    }
-
-    .commission-input {
-      margin-top: 1rem;
-      background: rgba(5, 150, 105, 0.05);
-      border-left: 4px solid var(--secondary);
-      padding: 1rem;
-      border-radius: 0.5rem;
-    }
-
-    .commission-input h4 {
-      margin-top: 0;
-      margin-bottom: 0.75rem;
-      font-size: 1.1rem;
-      color: var(--gray-700);
-    }
-
-    .commission-input input {
-      width: 100px;
-      margin-right: 0.5rem;
-    }
-
-    .analyze-btn {
-      width: 100%;
-      padding: 1rem;
-      margin: 2rem 0;
-      font-size: 1.1rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin: 1.5rem 0;
-    }
-
-    .stat-card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: var(--shadow);
-      border-top: 4px solid var(--primary);
-    }
-
-    .stat-card.warning {
-      border-top-color: var(--warning);
-    }
-
-    .stat-card.danger {
-      border-top-color: var(--danger);
-    }
-
-    .stat-card.success {
-      border-top-color: var(--secondary);
-    }
-
-    .stat-card.info {
-      border-top-color: var(--info);
-    }
-
-    .stat-card h3 {
-      margin-top: 0;
-      margin-bottom: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--gray-600);
-    }
-
-    .stat-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--gray-900);
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-subtext {
-      font-size: 0.875rem;
-      color: var(--gray-500);
-    }
-
-    .alert-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .alert-box {
-      background: white;
-      border-left: 5px solid var(--warning);
-      border-radius: 0.75rem;
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      height: 100%;
-    }
-
-    .alert-box.empty {
-      background: var(--gray-50);
-      border-left-color: var(--gray-400);
-    }
-
-    .alert-box.danger {
-      border-left-color: var(--danger);
-    }
-
-    .alert-box.success {
-      border-left-color: var(--secondary);
-    }
-
-    .alert-box.info {
-      border-left-color: var(--info);
-    }
-
-    .alert-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: var(--warning);
-    }
-
-    .alert-box.empty .alert-title {
-      color: var(--gray-500);
-    }
-
-    .alert-box.danger .alert-title {
-      color: var(--danger);
-    }
-
-    .alert-box.success .alert-title {
-      color: var(--secondary);
-    }
-
-    .alert-box.info .alert-title {
-      color: var(--info);
-    }
-
-    .alert-count {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--warning-dark);
-      margin-bottom: 1rem;
-    }
-
-    .alert-box.empty .alert-count {
-      color: var(--gray-500);
-    }
-
-    .alert-box.danger .alert-count {
-      color: var(--danger);
-    }
-
-    .alert-box.success .alert-count {
-      color: var(--secondary);
-    }
-
-    .alert-box.info .alert-count {
-      color: var(--info);
-    }
-
-    .alert-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9375rem;
-      margin-top: 1rem;
-    }
-
-    .alert-table th, .alert-table td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .alert-table th {
-      background: var(--gray-50);
-      color: var(--gray-700);
-      font-weight: 600;
-    }
-
-    .alert-table tr:last-child td {
-      border-bottom: none;
-    }
-
-    .amount-cell {
-      text-align: right;
-      font-family: 'Roboto Mono', monospace;
-    }
-
-    .amount-cell.positive {
-      color: var(--secondary);
-    }
-
-    .amount-cell.negative {
-      color: var(--danger);
-    }
-
-    .paid-cell {
-      color: var(--secondary);
-      font-weight: 600;
-    }
-
-    .unpaid-cell {
-      color: var(--danger);
-      font-weight: 600;
-    }
-
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(255, 255, 255, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      visibility: hidden;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .loading-overlay.show {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    .spinner {
-      width: 3rem;
-      height: 3rem;
-      border: 4px solid rgba(99, 102, 241, 0.1);
-      border-top: 4px solid var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    .error-message {
-      margin: 1rem 0;
-      padding: 1rem;
-      background: rgba(220, 38, 38, 0.1);
-      color: var(--danger);
-      border-radius: 0.5rem;
-      display: none;
-      border-left: 4px solid var(--danger);
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    .success-message {
-      margin: 1rem 0;
-      padding: 1rem;
-      background: rgba(5, 150, 105, 0.1);
-      color: var(--secondary-dark);
-      border-radius: 0.5rem;
-      display: none;
-      border-left: 4px solid var(--secondary);
-    }
-
-    .success-message.show {
-      display: block;
-    }
-
-    .export-btn {
-      margin-top: 1rem;
-    }
-
-    /* Manual Calculation Section */
-    .manual-compare-section {
-      margin-top: 2rem;
-    }
-
-    .manual-compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
-
-    .manual-compare-box {
-      background: var(--gray-50);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .manual-compare-box h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: var(--gray-700);
-    }
-
-    .manual-compare-textarea {
-      width: 100%;
-      min-height: 200px;
-      padding: 0.75rem;
-      border: 1px solid var(--gray-300);
-      border-radius: 0.5rem;
-      font-family: 'Roboto Mono', monospace;
-      font-size: 0.875rem;
-    }
-
-    .manual-compare-btn {
-      margin-top: 1rem;
-      width: 100%;
-    }
-
-    .manual-compare-results {
-      margin-top: 2rem;
-      background: white;
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .manual-compare-results h3 {
-      margin-top: 0;
-      margin-bottom: 1rem;
-      color: var(--gray-700);
-    }
-
-    .result-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-
-    .result-table th, .result-table td {
-      padding: 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid var(--gray-200);
-    }
-
-    .result-table th {
-      background: var(--gray-50);
-      color: var(--gray-700);
-      font-weight: 600;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      border-bottom: 1px solid var(--gray-200);
-      margin-bottom: 1.5rem;
-    }
-
-    .tab {
-      padding: 0.75rem 1.5rem;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      font-weight: 600;
-      color: var(--gray-600);
-      transition: all 0.2s ease;
-    }
-
-    .tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      background-color: rgba(99, 102, 241, 0.05);
-    }
-
-    .tab:hover:not(.active) {
-      color: var(--primary-dark);
-      background-color: rgba(99, 102, 241, 0.05);
-    }
-
-    /* Source file info in results */
-    .source-file-info {
-      font-size: 0.85rem;
-      color: var(--gray-500);
-      margin-bottom: 0.5rem;
-    }
-
-    /* Enhanced commission display */
-    .commission-badge {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background-color: rgba(5, 150, 105, 0.1);
-      color: var(--secondary-dark);
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        margin: 0;
-        border-radius: 0;
-      }
-      
-      .header {
-        padding: 1.5rem;
-      }
-      
-      .content-section {
-        padding: 1.5rem;
-      }
-      
-      .upload-section {
-        grid-template-columns: 1fr;
-      }
-      
-      .alert-container {
-        grid-template-columns: 1fr;
-      }
-      
-      .manual-compare-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+
+code
+Code
+download
+content_copy
+expand_less
+
+{
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+html, body {
+height: 100%;
+background: var(--gray-100);
+color: var(--gray-800);
+font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+line-height: 1.5;
+}
+
+.container {
+max-width: 1400px;
+margin: 0 auto;
+background: white;
+min-height: 100vh;
+box-shadow: var(--shadow-xl);
+}
+
+.header {
+background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+color: white;
+padding: 2rem;
+position: relative;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header h1 {
+margin: 0 0 0.5rem;
+font-size: 2.25rem;
+font-weight: 700;
+}
+
+.header p {
+opacity: 0.9;
+font-size: 1.1rem;
+}
+
+.user-info {
+position: absolute;
+top: 1rem;
+right: 2rem;
+background: rgba(255, 255, 255, 0.15);
+padding: 0.5rem 1rem;
+border-radius: 9999px;
+font-size: 0.875rem;
+font-weight: 500;
+}
+
+.nav-menu {
+background: var(--gray-800);
+display: flex;
+padding: 0 2rem;
+}
+
+.nav-item {
+padding: 1rem 1.5rem;
+color: white;
+text-decoration: none;
+font-weight: 500;
+transition: all 0.2s ease;
+border-bottom: 3px solid transparent;
+}
+
+.nav-item:hover {
+background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item.active {
+background: rgba(255, 255, 255, 0.05);
+border-bottom-color: var(--primary);
+}
+
+.content-section {
+padding: 2rem;
+display: none;
+}
+
+.content-section.active {
+display: block;
+}
+
+.section-title {
+font-size: 1.5rem;
+margin-bottom: 1.5rem;
+color: var(--gray-800);
+font-weight: 600;
+border-bottom: 2px solid var(--gray-200);
+padding-bottom: 0.5rem;
+}
+
+.upload-section {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+gap: 1.5rem;
+margin-bottom: 2rem;
+}
+
+.upload-box {
+background: var(--gray-100);
+border: 2px dashed var(--gray-300);
+border-radius: 0.75rem;
+padding: 1.5rem;
+transition: all 0.2s ease;
+position: relative;
+}
+
+.upload-box h3 {
+margin-bottom: 1rem;
+font-size: 1.25rem;
+color: var(--gray-700);
+}
+
+.upload-box.source2 {
+border-color: var(--secondary);
+background: rgba(5, 150, 105, 0.05);
+}
+
+.upload-box.source2::after {
+content: "(Paid Source)";
+color: var(--secondary);
+font-size: 0.875rem;
+display: block;
+margin-top: 0.5rem;
+font-weight: 500;
+}
+
+.upload-box.dragover {
+border-color: var(--primary);
+background: rgba(99, 102, 241, 0.05);
+}
+
+.file-input {
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: -1px;
+overflow: hidden;
+clip: rect(0, 0, 0, 0);
+border: 0;
+}
+
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+padding: 0.75rem 1.5rem;
+border-radius: 0.5rem;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s ease;
+border: none;
+user-select: none;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+color: white;
+}
+
+.btn-primary:hover {
+background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+transform: translateY(-1px);
+box-shadow: var(--shadow);
+}
+
+.btn-secondary {
+background: linear-gradient(135deg, var(--secondary), var(--secondary-dark));
+color: white;
+}
+
+.btn-secondary:hover {
+background: linear-gradient(135deg, var(--secondary-dark), var(--secondary));
+transform: translateY(-1px);
+box-shadow: var(--shadow);
+}
+
+.btn-info {
+background: var(--info);
+color: white;
+}
+
+.btn-info:hover {
+background: #2563eb;
+transform: translateY(-1px);
+box-shadow: var(--shadow);
+}
+
+.btn:disabled {
+background: var(--gray-300);
+color: var(--gray-500);
+cursor: not-allowed;
+transform: none;
+box-shadow: none;
+}
+
+.file-info {
+margin-top: 1rem;
+padding: 0.75rem 1rem;
+background: rgba(5, 150, 105, 0.1);
+color: var(--secondary-dark);
+border-radius: 0.5rem;
+font-size: 0.9375rem;
+font-weight: 500;
+display: none;
+}
+
+.file-info.show {
+display: inline-block;
+}
+
+.file-list {
+margin-top: 1rem;
+padding-left: 0;
+list-style-type: none;
+}
+
+.file-list li {
+padding: 0.5rem;
+border-bottom: 1px solid var(--gray-200);
+font-size: 0.9375rem;
+display: flex;
+justify-content: space-between;
+}
+
+.file-list li:last-child {
+border-bottom: none;
+}
+
+.merge-btn {
+margin-top: 1rem;
+}
+
+.mapping-group {
+margin-bottom: 2rem;
+background: var(--gray-50);
+padding: 1.5rem;
+border-radius: 0.75rem;
+box-shadow: var(--shadow-sm);
+}
+
+.mapping-group h3 {
+margin-bottom: 1rem;
+font-size: 1.25rem;
+color: var(--gray-700);
+}
+
+.mapping-row {
+display: flex;
+align-items: center;
+margin-bottom: 1rem;
+gap: 1rem;
+flex-wrap: wrap;
+}
+
+.mapping-row label {
+min-width: 150px;
+font-weight: 500;
+color: var(--gray-700);
+}
+
+select, input[type="number"], input[type="text"] {
+padding: 0.5rem 0.75rem;
+border: 1px solid var(--gray-300);
+border-radius: 0.5rem;
+font-size: 0.9375rem;
+min-width: 200px;
+background: white;
+}
+
+select:focus, input:focus {
+outline: none;
+border-color: var(--primary);
+box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.options-section {
+margin-bottom: 2rem;
+}
+
+.option-group {
+margin-bottom: 1.5rem;
+}
+
+.checkbox-group {
+display: flex;
+align-items: center;
+margin-bottom: 0.5rem;
+}
+
+.checkbox-group input {
+margin-right: 0.75rem;
+}
+
+.checkbox-group label {
+font-weight: 500;
+color: var(--gray-700);
+}
+
+.gst-options {
+margin-top: 1rem;
+background: rgba(14, 165, 233, 0.05);
+border-left: 4px solid var(--info);
+padding: 1rem;
+border-radius: 0.5rem;
+}
+
+.gst-options h4 {
+margin-top: 0;
+margin-bottom: 0.75rem;
+font-size: 1.1rem;
+color: var(--gray-700);
+}
+
+.gst-options label {
+display: inline-flex;
+align-items: center;
+margin-right: 1.5rem;
+font-size: 0.9375rem;
+}
+
+.gst-options input {
+margin-right: 0.5rem;
+}
+
+.commission-input {
+margin-top: 1rem;
+background: rgba(5, 150, 105, 0.05);
+border-left: 4px solid var(--secondary);
+padding: 1rem;
+border-radius: 0.5rem;
+}
+
+.commission-input h4 {
+margin-top: 0;
+margin-bottom: 0.75rem;
+font-size: 1.1rem;
+color: var(--gray-700);
+}
+
+.commission-input input {
+width: 100px;
+margin-right: 0.5rem;
+}
+
+.analyze-btn {
+width: 100%;
+padding: 1rem;
+margin: 2rem 0;
+font-size: 1.1rem;
+}
+
+.stats-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1.5rem;
+margin: 1.5rem 0;
+}
+
+.stat-card {
+background: white;
+padding: 1.5rem;
+border-radius: 0.75rem;
+box-shadow: var(--shadow);
+border-top: 4px solid var(--primary);
+}
+
+.stat-card.warning {
+border-top-color: var(--warning);
+}
+
+.stat-card.danger {
+border-top-color: var(--danger);
+}
+
+.stat-card.success {
+border-top-color: var(--secondary);
+}
+
+.stat-card.info {
+border-top-color: var(--info);
+}
+
+.stat-card h3 {
+margin-top: 0;
+margin-bottom: 0.5rem;
+font-size: 1rem;
+font-weight: 600;
+color: var(--gray-600);
+}
+
+.stat-value {
+font-size: 1.75rem;
+font-weight: 700;
+color: var(--gray-900);
+margin-bottom: 0.25rem;
+}
+
+.stat-subtext {
+font-size: 0.875rem;
+color: var(--gray-500);
+}
+
+.alert-container {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+gap: 1.5rem;
+margin-bottom: 2rem;
+}
+
+.alert-box {
+background: white;
+border-left: 5px solid var(--warning);
+border-radius: 0.75rem;
+box-shadow: var(--shadow);
+padding: 1.5rem;
+height: 100%;
+}
+
+.alert-box.empty {
+background: var(--gray-50);
+border-left-color: var(--gray-400);
+}
+
+.alert-box.danger {
+border-left-color: var(--danger);
+}
+
+.alert-box.success {
+border-left-color: var(--secondary);
+}
+
+.alert-box.info {
+border-left-color: var(--info);
+}
+
+.alert-title {
+font-size: 1.2rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+color: var(--warning);
+}
+
+.alert-box.empty .alert-title {
+color: var(--gray-500);
+}
+
+.alert-box.danger .alert-title {
+color: var(--danger);
+}
+
+.alert-box.success .alert-title {
+color: var(--secondary);
+}
+
+.alert-box.info .alert-title {
+color: var(--info);
+}
+
+.alert-count {
+font-size: 1.25rem;
+font-weight: 800;
+color: var(--warning-dark);
+margin-bottom: 1rem;
+}
+
+.alert-box.empty .alert-count {
+color: var(--gray-500);
+}
+
+.alert-box.danger .alert-count {
+color: var(--danger);
+}
+
+.alert-box.success .alert-count {
+color: var(--secondary);
+}
+
+.alert-box.info .alert-count {
+color: var(--info);
+}
+
+.alert-table {
+width: 100%;
+border-collapse: collapse;
+font-size: 0.9375rem;
+margin-top: 1rem;
+}
+
+.alert-table th, .alert-table td {
+padding: 0.75rem;
+text-align: left;
+border-bottom: 1px solid var(--gray-200);
+}
+
+.alert-table th {
+background: var(--gray-50);
+color: var(--gray-700);
+font-weight: 600;
+}
+
+.alert-table tr:last-child td {
+border-bottom: none;
+}
+
+.amount-cell {
+text-align: right;
+font-family: 'Roboto Mono', monospace;
+}
+
+.amount-cell.positive {
+color: var(--secondary);
+}
+
+.amount-cell.negative {
+color: var(--danger);
+}
+
+.paid-cell {
+color: var(--secondary);
+font-weight: 600;
+}
+
+.unpaid-cell {
+color: var(--danger);
+font-weight: 600;
+}
+
+.loading-overlay {
+position: fixed;
+inset: 0;
+background: rgba(255, 255, 255, 0.9);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+visibility: hidden;
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+.loading-overlay.show {
+visibility: visible;
+opacity: 1;
+}
+
+.spinner {
+width: 3rem;
+height: 3rem;
+border: 4px solid rgba(99, 102, 241, 0.1);
+border-top: 4px solid var(--primary);
+border-radius: 50%;
+animation: spin 1s linear infinite;
+}
+
+.error-message {
+margin: 1rem 0;
+padding: 1rem;
+background: rgba(220, 38, 38, 0.1);
+color: var(--danger);
+border-radius: 0.5rem;
+display: none;
+border-left: 4px solid var(--danger);
+}
+
+.error-message.show {
+display: block;
+}
+
+.success-message {
+margin: 1rem 0;
+padding: 1rem;
+background: rgba(5, 150, 105, 0.1);
+color: var(--secondary-dark);
+border-radius: 0.5rem;
+display: none;
+border-left: 4px solid var(--secondary);
+}
+
+.success-message.show {
+display: block;
+}
+
+.export-btn {
+margin-top: 1rem;
+}
+
+/* Manual Calculation Section */
+.manual-compare-section {
+margin-top: 2rem;
+}
+
+.manual-compare-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.5rem;
+}
+
+.manual-compare-box {
+background: var(--gray-50);
+border-radius: 0.75rem;
+padding: 1.5rem;
+box-shadow: var(--shadow-sm);
+}
+
+.manual-compare-box h3 {
+margin-top: 0;
+margin-bottom: 1rem;
+color: var(--gray-700);
+}
+
+.manual-compare-textarea {
+width: 100%;
+min-height: 200px;
+padding: 0.75rem;
+border: 1px solid var(--gray-300);
+border-radius: 0.5rem;
+font-family: 'Roboto Mono', monospace;
+font-size: 0.875rem;
+}
+
+.manual-compare-btn {
+margin-top: 1rem;
+width: 100%;
+}
+
+.manual-compare-results {
+margin-top: 2rem;
+background: white;
+border-radius: 0.75rem;
+padding: 1.5rem;
+box-shadow: var(--shadow-sm);
+}
+
+.manual-compare-results h3 {
+margin-top: 0;
+margin-bottom: 1rem;
+color: var(--gray-700);
+}
+
+.result-table {
+width: 100%;
+border-collapse: collapse;
+margin-top: 1rem;
+}
+
+.result-table th, .result-table td {
+padding: 0.75rem;
+text-align: left;
+border-bottom: 1px solid var(--gray-200);
+}
+
+.result-table th {
+background: var(--gray-50);
+color: var(--gray-700);
+font-weight: 600;
+}
+
+/* Tabs */
+.tabs {
+display: flex;
+border-bottom: 1px solid var(--gray-200);
+margin-bottom: 1.5rem;
+}
+
+.tab {
+padding: 0.75rem 1.5rem;
+cursor: pointer;
+border-bottom: 3px solid transparent;
+font-weight: 600;
+color: var(--gray-600);
+transition: all 0.2s ease;
+}
+
+.tab.active {
+color: var(--primary);
+border-bottom-color: var(--primary);
+background-color: rgba(99, 102, 241, 0.05);
+}
+
+.tab:hover:not(.active) {
+color: var(--primary-dark);
+background-color: rgba(99, 102, 241, 0.05);
+}
+
+/* Source file info in results */
+.source-file-info {
+font-size: 0.85rem;
+color: var(--gray-500);
+margin-bottom: 0.5rem;
+}
+
+/* Enhanced commission display */
+.commission-badge {
+display: inline-block;
+padding: 0.25rem 0.5rem;
+border-radius: 0.25rem;
+font-size: 0.75rem;
+font-weight: 600;
+background-color: rgba(5, 150, 105, 0.1);
+color: var(--secondary-dark);
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+.container {
+margin: 0;
+border-radius: 0;
+}
+
+.header {
+padding: 1.5rem;
+}
+
+.content-section {
+padding: 1.5rem;
+}
+
+.upload-section {
+grid-template-columns: 1fr;
+}
+
+.alert-container {
+grid-template-columns: 1fr;
+}
+
+.manual-compare-grid {
+grid-template-columns: 1fr;
+}
+}
+</style>
+
 </head>
 <body>
   <div class="container">
@@ -779,126 +788,175 @@
       <h1>🔍 Advanced App ID Analyzer Pro</h1>
       <p>Comprehensive Payment Reconciliation & Analysis Tool</p>
     </div>
-    <nav class="nav-menu">
-      <a href="#" class="nav-item active" data-content="main-analysis">Main Analysis</a>
-      <a href="#" class="nav-item" data-content="manual-comparison">Manual Comparison</a>
-    </nav>
 
-    <!-- Main Analysis Section -->
-    <div id="main-analysis" class="content-section active">
-      <h2 class="section-title">Data Sources</h2>
-      <div class="upload-section">
-        <div class="upload-box" id="drop1">
-          <h3>Source 1 Files</h3>
-          <input type="file" id="file-input-1" class="file-input" multiple accept=".xlsx,.xls,.csv">
-          <button class="btn btn-primary" id="upload-btn-1">Choose Files</button>
-          <div id="file-info-1" class="file-info"></div>
-          <ul id="file-list-1" class="file-list"></ul>
-          <button id="merge-btn-1" class="btn btn-info merge-btn" style="display:none;">Merge S1 Files</button>
-        </div>
-        <div class="upload-box source2" id="drop2">
-          <h3>Source 2 File (Always Paid)</h3>
-          <input type="file" id="file-input-2" class="file-input" accept=".xlsx,.xls,.csv">
-          <button class="btn btn-secondary" id="upload-btn-2">Choose File</button>
-          <div id="file-info-2" class="file-info"></div>
-        </div>
+
+code
+Code
+download
+content_copy
+expand_less
+
+
+<nav class="nav-menu">
+  <a href="#" class="nav-item active" data-content="main-analysis">Main Analysis</a>
+  <a href="#" class="nav-item" data-content="manual-comparison">Manual Comparison</a>
+</nav>
+
+<!-- Main Analysis Section -->
+
+<div id="main-analysis" class="content-section active">
+  <h2 class="section-title">Data Sources</h2>
+  <div class="upload-section">
+    <div class="upload-box" id="drop1">
+      <h3>Source 1 Files</h3>
+      <input type="file" id="file-input-1" class="file-input" multiple accept=".xlsx,.xls,.csv">
+      <button class="btn btn-primary" id="upload-btn-1">Choose Files</button>
+      <div id="file-info-1" class="file-info"></div>
+      <ul id="file-list-1" class="file-list"></ul>
+      <button id="merge-btn-1" class="btn btn-info merge-btn" style="display:none;">Merge S1 Files</button>
+    </div>
+    <div class="upload-box source2" id="drop2">
+      <h3>Source 2 File (Always Paid)</h3>
+      <input type="file" id="file-input-2" class="file-input" accept=".xlsx,.xls,.csv">
+      <button class="btn btn-secondary" id="upload-btn-2">Choose File</button>
+      <div id="file-info-2" class="file-info"></div>
+    </div>
+  </div>
+
+  <div id="column-mappings">
+    <h2 class="section-title">Column Mappings</h2>
+    <div class="mapping-group">
+      <div id="mapping-fields"></div>
+    </div>
+  </div>
+
+  <div class="options-section">
+    <h2 class="section-title">Analysis Options</h2>
+    <div class="option-group">
+      <div class="checkbox-group">
+        <input type="checkbox" id="include-commission">
+        <label for="include-commission">Include Commission Analysis</label>
       </div>
 
-      <div id="column-mappings">
-        <h2 class="section-title">Column Mappings</h2>
-        <div class="mapping-group">
-          <div id="mapping-fields"></div>
-        </div>
-      </div>
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<div class="gst-options">
+    <h4>GST Options (S1 Only)</h4>
+    <label><input type="checkbox" id="apply-gst"> Apply 18% GST to S1 amounts</label>
+    <label><input type="checkbox" id="gst-round" disabled> Round GST amounts</label>
+  </div>
 
-      <div class="options-section">
-        <h2 class="section-title">Analysis Options</h2>
-        <div class="option-group">
-          <div class="checkbox-group">
-            <input type="checkbox" id="include-commission">
-            <label for="include-commission">Include Commission Analysis</label>
-          </div>
-          
-          <div class="gst-options">
-            <h4>GST Options (S1 Only)</h4>
-            <label><input type="checkbox" id="apply-gst"> Apply 18% GST to S1 amounts</label>
-            <label><input type="checkbox" id="gst-round" disabled> Round GST amounts</label>
-          </div>
+  <div class="commission-input" id="commission-input" style="display: none;">
+    <h4>Commission Analysis</h4>
+    <label>
+      Desired Commission Percentage:
+      <input type="number" id="desired-commission" min="0" max="100" step="0.01" value="2.00"> %
+    </label>
+  </div>
+</div>
+  </div>
 
-          <div class="commission-input" id="commission-input" style="display: none;">
-            <h4>Commission Analysis</h4>
-            <label>
-              Desired Commission Percentage:
-              <input type="number" id="desired-commission" min="0" max="100" step="0.01" value="2.00"> %
-            </label>
-          </div>
-        </div>
-      </div>
+  <div id="error-message" class="error-message"></div>
+  <div id="success-message" class="success-message"></div>
+  <button id="analyze-btn" class="btn btn-secondary analyze-btn" disabled>Analyze Data</button>
 
-      <div id="error-message" class="error-message"></div>
-      <div id="success-message" class="success-message"></div>
-      <button id="analyze-btn" class="btn btn-secondary analyze-btn" disabled>Analyze Data</button>
-
-      <div id="results-section" style="display: none;">
-        <div class="tabs">
-          <div class="tab active" data-tab="summary">Summary View</div>
-          <div class="tab" data-tab="detailed">Detailed Results</div>
-          <div class="tab" data-tab="merged">Merged Data</div>
-        </div>
-
-        <div id="summary-view" class="tab-content active">
-          <h2 class="section-title">Analysis Summary</h2>
-          <div class="stats-grid" id="stats-grid"></div>
-          <div id="results" class="alert-container"></div>
-        </div>
-
-        <div id="detailed-view" class="tab-content">
-          <h2 class="section-title">Detailed Results</h2>
-          <div id="detailed-results"></div>
-          <button id="export-detailed-btn" class="btn btn-primary export-btn">Export Detailed Report</button>
-        </div>
-
-        <div id="merged-view" class="tab-content">
-          <h2 class="section-title">Merged Data View</h2>
-          <div id="merged-results"></div>
-          <button id="export-merged-btn" class="btn btn-secondary export-btn">Export Merged Data</button>
-        </div>
-      </div>
+  <div id="results-section" style="display: none;">
+    <div class="tabs">
+      <div class="tab active" data-tab="summary">Summary View</div>
+      <div class="tab" data-tab="detailed">Detailed Results</div>
+      <div class="tab" data-tab="merged">Merged Data</div>
     </div>
 
-    <!-- Manual Comparison Section -->
-    <div id="manual-comparison" class="content-section">
-      <h2 class="section-title">App ID Comparison</h2>
-      <p>Enter App IDs to compare between Source 1 and Source 2</p>
-      
-      <div class="manual-compare-grid">
-        <div class="manual-compare-box">
-          <h3>Source 1 App IDs</h3>
-          <textarea id="manual-s1-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<div id="summary-view" class="tab-content active">
+  <h2 class="section-title">Analysis Summary</h2>
+  <div class="stats-grid" id="stats-grid"></div>
+  <div id="results" class="alert-container"></div>
+</div>
+
+<div id="detailed-view" class="tab-content">
+  <h2 class="section-title">Detailed Results</h2>
+  <div id="detailed-results"></div>
+  <button id="export-detailed-btn" class="btn btn-primary export-btn">Export Detailed Report</button>
+</div>
+
+<div id="merged-view" class="tab-content">
+  <h2 class="section-title">Merged Data View</h2>
+  <div id="merged-results"></div>
+  <button id="export-merged-btn" class="btn btn-secondary export-btn">Export Merged Data</button>
+</div>
+  </div>
+</div>
+
+<!-- Manual Comparison Section -->
+
+<div id="manual-comparison" class="content-section">
+  <h2 class="section-title">App ID Comparison</h2>
+  <p>Enter App IDs to compare between Source 1 and Source 2</p>
+
+  <div class="manual-compare-grid">
+    <div class="manual-compare-box">
+      <h3>Source 1 App IDs</h3>
+      <textarea id="manual-s1-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+
 
 Example:
 APP123
 APP456
 APP789"></textarea>
-          <button id="compare-manual-btn" class="btn btn-primary manual-compare-btn">Compare App IDs</button>
-        </div>
-        <div class="manual-compare-box">
-          <h3>Source 2 App IDs</h3>
-          <textarea id="manual-s2-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+<button id="compare-manual-btn" class="btn btn-primary manual-compare-btn">Compare App IDs</button>
+
+</div>
+
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
+<div class="manual-compare-box">
+      <h3>Source 2 App IDs</h3>
+      <textarea id="manual-s2-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+
 
 Example:
 APP123
 APP456
 APP789"></textarea>
-        </div>
-      </div>
-      <div class="manual-compare-results">
-        <h3>Comparison Results</h3>
-        <div id="manual-results-container">
-          <p>Enter App IDs in both boxes and click "Compare App IDs" to see results</p>
-        </div>
-      </div>
+
+</div>
+</div>
+
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+
+<div class="manual-compare-results">
+    <h3>Comparison Results</h3>
+    <div id="manual-results-container">
+      <p>Enter App IDs in both boxes and click "Compare App IDs" to see results</p>
     </div>
+  </div>
+</div>
   </div>
 
   <div id="loading-overlay" class="loading-overlay">
@@ -1392,7 +1450,6 @@ APP789"></textarea>
           };
           
           const scenarios = {
-            "S1 Records with Specific Statuses": [],
             "S1 Paid but missing in S2": [], "S2 Paid but missing in S1": [],
             "S2 Paid, S1 Unpaid": [], "S2 Paid, S1 Paid but amount different": [],
             "S2 Paid, S1 Unpaid and amount different": [],
@@ -1422,30 +1479,6 @@ APP789"></textarea>
               const amount1Raw = Utils.safeParseFloat(r1[idx.s1.amount]);
               const amount1GST = Utils.applyGSTToS1(amount1Raw);
               
-              // New Feature: Check for specific statuses
-              if (idx.s1.status) {
-                  const statusValue = r1[idx.s1.status] ? String(r1[idx.s1.status]).toLowerCase().trim() : '';
-                  let specificStatus = null;
-                  if (statusValue === '1' || statusValue.includes('pending e-sign')) {
-                      specificStatus = "Pending e-Sign";
-                  } else if (statusValue === '2' || statusValue.includes('ready to download')) {
-                      specificStatus = "Ready To Download";
-                  } else if (statusValue === '3' || statusValue.includes('payment pending') || statusValue.includes('pending payment')) {
-                      specificStatus = "Pending Payment";
-                  }
-
-                  if (specificStatus) {
-                      scenarios["S1 Records with Specific Statuses"].push({
-                          AppID: appId,
-                          IdentifiedStatus: specificStatus,
-                          OriginalStatus: r1[idx.s1.status],
-                          Amount: amount1Raw,
-                          Date: r1[idx.s1.date],
-                          S1_File: r1.sourceFile
-                      });
-                  }
-              }
-
               if (s1Status === "Paid" && (commissionAmount === null || commissionAmount === 0)) {
                 scenarios["S1 Marked Paid but Commission Missing"].push({ AppID: appId, Status: s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
               }
@@ -1514,7 +1547,6 @@ APP789"></textarea>
         const { analysisOptions } = AppState.getState();
 
         const orderedScenarios = [
-          "S1 Records with Specific Statuses",
           "S1 Paid but missing in S2", "S2 Paid but missing in S1", "S2 Paid, S1 Unpaid",
           "S2 Paid, S1 Paid but amount different", "S2 Paid, S1 Unpaid and amount different",
           "Commission received higher than desired", "Commission received lower than desired",
@@ -1525,7 +1557,7 @@ APP789"></textarea>
         const stats = {
           totalAlerts: 0, totalAmountDiscrepancies: 0, totalMissingRecords: 0,
           totalDuplicates: 0, totalAmountDifference: 0, totalCommissionDifference: 0,
-          totalStatusInconsistencies: 0, totalActionableStatuses: 0
+          totalStatusInconsistencies: 0
         };
         orderedScenarios.forEach(s => {
             const records = scenarios[s] || [];
@@ -1539,14 +1571,12 @@ APP789"></textarea>
             else if (s.includes("Commission") && s.includes("desired")) {
                 stats.totalCommissionDifference += records.reduce((sum, r) => sum + (r.Difference || 0), 0);
             } else if (s.includes("Marked")) stats.totalStatusInconsistencies += records.length;
-            else if (s.includes("Specific Statuses")) stats.totalActionableStatuses += records.length;
         });
         
         DOM.statsGrid.innerHTML = `
           <div class="stat-card danger"><h3>Total Alerts</h3><div class="stat-value">${stats.totalAlerts}</div><div class="stat-subtext">Potential issues found</div></div>
           <div class="stat-card warning"><h3>Amount Discrepancies</h3><div class="stat-value">${stats.totalAmountDiscrepancies}</div><div class="stat-subtext">Payment amount mismatches</div></div>
           <div class="stat-card info"><h3>Missing Records</h3><div class="stat-value">${stats.totalMissingRecords}</div><div class="stat-subtext">Records in one source only</div></div>
-          ${stats.totalActionableStatuses > 0 ? `<div class="stat-card info"><h3>Actionable Statuses</h3><div class="stat-value">${stats.totalActionableStatuses}</div><div class="stat-subtext">e-Sign, Download, Pending Payment</div></div>` : ''}
           <div class="stat-card ${stats.totalAmountDifference >= 0 ? 'success' : 'danger'}"><h3>Net Amount Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalAmountDifference)}</div><div class="stat-subtext">S2 vs S1 total difference</div></div>
           ${analysisOptions.includeCommission ? `<div class="stat-card ${stats.totalCommissionDifference >= 0 ? 'danger' : 'success'}"><h3>Net Commission Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalCommissionDifference)}</div><div class="stat-subtext">Received vs. Desired</div></div>` : ''}
           ${stats.totalStatusInconsistencies > 0 ? `<div class="stat-card danger"><h3>Status Inconsistencies</h3><div class="stat-value">${stats.totalStatusInconsistencies}</div><div class="stat-subtext">Paid/Unpaid mismatches</div></div>` : ''}
@@ -1556,12 +1586,10 @@ APP789"></textarea>
         orderedScenarios.forEach(scenarioName => {
             const records = scenarios[scenarioName] || [];
             const isEmpty = records.length === 0;
-            if (isEmpty && scenarioName === "S1 Records with Specific Statuses") return; // Don't show the box if empty
-
             let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
             summaryHtml += `<div class="${boxClass}"><div class="alert-title">${scenarioName}</div><div class="alert-count">${records.length} records</div>`;
             if (!isEmpty) {
-                const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h !== 'Status' && !h.includes('Original'));
+                const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h !== 'Status');
                 summaryHtml += `<table class="alert-table"><thead><tr>${headers.map(h => `<th>${_.startCase(h)}</th>`).join('')}</tr></thead><tbody>`;
                 records.slice(0, 5).forEach(rec => {
                     summaryHtml += `<tr>${headers.map(h => {
