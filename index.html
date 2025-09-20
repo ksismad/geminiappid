@@ -699,7 +699,6 @@
       display: flex;
       border-bottom: 1px solid var(--gray-200);
       margin-bottom: 1.5rem;
-      flex-wrap: wrap; /* Allow tabs to wrap on smaller screens */
     }
 
     .tab {
@@ -709,7 +708,6 @@
       font-weight: 600;
       color: var(--gray-600);
       transition: all 0.2s ease;
-      white-space: nowrap; /* Prevent tab text from breaking */
     }
 
     .tab.active {
@@ -781,7 +779,6 @@
       <h1>🔍 Advanced App ID Analyzer Pro</h1>
       <p>Comprehensive Payment Reconciliation & Analysis Tool</p>
     </div>
-
     <nav class="nav-menu">
       <a href="#" class="nav-item active" data-content="main-analysis">Main Analysis</a>
       <a href="#" class="nav-item" data-content="manual-comparison">Manual Comparison</a>
@@ -847,9 +844,6 @@
           <div class="tab active" data-tab="summary">Summary View</div>
           <div class="tab" data-tab="detailed">Detailed Results</div>
           <div class="tab" data-tab="merged">Merged Data</div>
-          <div class="tab" data-tab="downloadedZeroComm">S1 Downloaded (0 Commission)</div>
-          <div class="tab" data-tab="readyToDownloadZeroComm">S1 Ready to Download (0 Commission)</div>
-          <div class="tab" data-tab="readyToDownloadList">S1 Ready to Download List</div>
         </div>
 
         <div id="summary-view" class="tab-content active">
@@ -869,25 +863,6 @@
           <div id="merged-results"></div>
           <button id="export-merged-btn" class="btn btn-secondary export-btn">Export Merged Data</button>
         </div>
-
-        <div id="downloadedZeroComm-view" class="tab-content">
-          <h2 class="section-title">S1 Status: Downloaded & Commission: 0</h2>
-          <div id="downloadedZeroComm-results"></div>
-          <button id="export-downloadedZeroComm-btn" class="btn btn-primary export-btn">Export Report</button>
-        </div>
-
-        <div id="readyToDownloadZeroComm-view" class="tab-content">
-          <h2 class="section-title">S1 Status: Ready to Download & Commission: 0</h2>
-          <div id="readyToDownloadZeroComm-results"></div>
-          <button id="export-readyToDownloadZeroComm-btn" class="btn btn-primary export-btn">Export Report</button>
-        </div>
-
-        <div id="readyToDownloadList-view" class="tab-content">
-          <h2 class="section-title">S1 Status: Ready to Download (All)</h2>
-          <div id="readyToDownloadList-results"></div>
-          <button id="export-readyToDownloadList-btn" class="btn btn-primary export-btn">Export Report</button>
-        </div>
-
       </div>
     </div>
 
@@ -900,23 +875,23 @@
         <div class="manual-compare-box">
           <h3>Source 1 App IDs</h3>
           <textarea id="manual-s1-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+
 Example:
 APP123
 APP456
 APP789"></textarea>
           <button id="compare-manual-btn" class="btn btn-primary manual-compare-btn">Compare App IDs</button>
         </div>
-        
         <div class="manual-compare-box">
           <h3>Source 2 App IDs</h3>
           <textarea id="manual-s2-data" class="manual-compare-textarea" placeholder="Enter App IDs (one per line or comma separated)
+
 Example:
 APP123
 APP456
 APP789"></textarea>
         </div>
       </div>
-      
       <div class="manual-compare-results">
         <h3>Comparison Results</h3>
         <div id="manual-results-container">
@@ -1021,15 +996,7 @@ APP789"></textarea>
       
       // Tabs
       tabs: document.querySelectorAll('.tab'),
-      tabContents: document.querySelectorAll('.tab-content'),
-
-      // New Tabs
-      downloadedZeroCommResults: document.getElementById('downloadedZeroComm-results'),
-      readyToDownloadZeroCommResults: document.getElementById('readyToDownloadZeroComm-results'),
-      readyToDownloadListResults: document.getElementById('readyToDownloadList-results'),
-      exportDownloadedZeroCommBtn: document.getElementById('export-downloadedZeroComm-btn'),
-      exportReadyToDownloadZeroCommBtn: document.getElementById('export-readyToDownloadZeroComm-btn'),
-      exportReadyToDownloadListBtn: document.getElementById('export-readyToDownloadList-btn'),
+      tabContents: document.querySelectorAll('.tab-content')
     };
 
     // UI Manager for controlling UI state
@@ -1041,9 +1008,6 @@ APP789"></textarea>
         DOM.statsGrid.innerHTML = '';
         DOM.detailedResults.innerHTML = '';
         DOM.mergedResults.innerHTML = '';
-        DOM.downloadedZeroCommResults.innerHTML = '';
-        DOM.readyToDownloadZeroCommResults.innerHTML = '';
-        DOM.readyToDownloadListResults.innerHTML = '';
         // Reset tabs to default
         const tabsContainer = DOM.resultsSection.querySelector('.tabs');
         tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1093,35 +1057,29 @@ APP789"></textarea>
         return '';
       },
       
-      // *** MODIFIED FUNCTION ***
       getS1Status: (row, statusIndex, commissionIndex) => {
-        // First, check for an explicit status string
         if (statusIndex !== undefined && statusIndex !== null && statusIndex !== "") {
             const statusValue = row[statusIndex];
             if (typeof statusValue === 'string') {
                 const lowerStatus = statusValue.toLowerCase().trim();
                 
-                const unpaidKeywords = ['not paid', 'unpaid', 'declined', 'pending', 'rejected', 'no', 'n'];
-                const paidKeywords = ['paid', 'ready to download', 'dsc downloaded', 'yes', 'y'];
-
-                if (unpaidKeywords.some(keyword => lowerStatus.includes(keyword))) {
+                // *** BUG FIX: Check for negative cases FIRST to avoid "not paid" matching "paid". ***
+                if (lowerStatus.includes('unpaid') || lowerStatus.includes('not paid') || lowerStatus === 'no' || lowerStatus === 'n') {
                     return "Unpaid";
                 }
-                if (paidKeywords.some(keyword => lowerStatus.includes(keyword))) {
+                if (lowerStatus.includes('paid') || lowerStatus === 'yes' || lowerStatus === 'y') {
                     return "Paid";
                 }
             }
         }
         
-        // If no definitive status string is found, fall back to commission amount check
+        // Fall back to commission amount check
         if (commissionIndex !== undefined && commissionIndex !== null && commissionIndex !== "") {
           const commValue = row[commissionIndex];
           const numericValue = Utils.safeParseFloat(commValue);
-          // A commission greater than zero implies it's Paid
-          return (numericValue > 0) ? "Paid" : "Unpaid";
+          return (numericValue === 0 || isNaN(numericValue)) ? "Unpaid" : "Paid";
         }
         
-        // Default to Unpaid if no other information is available
         return "Unpaid";
       },
       
@@ -1145,7 +1103,7 @@ APP789"></textarea>
       calculateCommissionPercentage: (amount, commission) => {
         amount = Utils.safeParseFloat(amount);
         commission = Utils.safeParseFloat(commission);
-        if (!amount || amount === 0) return 0; // Commission could be 0, that's valid
+        if (!amount || !commission || amount === 0) return 0;
         return (commission / amount) * 100;
       },
       
@@ -1379,7 +1337,7 @@ APP789"></textarea>
           `;
         });
         
-        html += `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-600);"><strong>Status Column Note:</strong> Status is determined by keywords (e.g., 'Paid', 'Downloaded', 'Rejected', 'Pending'). If no keyword matches, it falls back to the commission amount (>0 = Paid).</div>`;
+        html += `<div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--gray-600);"><strong>Status Column Note:</strong> If a dedicated status column is not mapped, status will be inferred from the commission amount (0 = Unpaid).</div>`;
         
         DOM.mappingFields.innerHTML = html;
         document.querySelectorAll('.source-select').forEach(select => {
@@ -1434,15 +1392,13 @@ APP789"></textarea>
           };
           
           const scenarios = {
+            "S1 Records with Specific Statuses": [],
             "S1 Paid but missing in S2": [], "S2 Paid but missing in S1": [],
             "S2 Paid, S1 Unpaid": [], "S2 Paid, S1 Paid but amount different": [],
             "S2 Paid, S1 Unpaid and amount different": [],
             "Commission received higher than desired": [], "Commission received lower than desired": [],
             "Duplicates in S1": [], "Duplicates in S2": [],
-            "S1 Marked Paid but Commission Missing": [], "S1 Marked Unpaid but Commission Exists": [],
-            "S1 Downloaded with Zero Commission": [],
-            "S1 Ready to Download with Zero Commission": [],
-            "S1 Ready to Download List": []
+            "S1 Marked Paid but Commission Missing": [], "S1 Marked Unpaid but Commission Exists": []
           };
           
           const s2Map = new Map(s2Records.map(r => [String(r[idx.s2.appId]), r]));
@@ -1462,30 +1418,39 @@ APP789"></textarea>
               const r2 = s2Map.get(appId);
               const s1Status = Utils.getS1Status(r1, idx.s1.status, idx.s1.commission);
               const commissionAmount = idx.s1.commission ? Utils.safeParseFloat(r1[idx.s1.commission]) : null;
-              const rawStatusValue = (idx.s1.status && r1[idx.s1.status]) ? String(r1[idx.s1.status]).toLowerCase().trim() : '';
-
+              
               const amount1Raw = Utils.safeParseFloat(r1[idx.s1.amount]);
               const amount1GST = Utils.applyGSTToS1(amount1Raw);
               
-              if (s1Status === "Paid" && (commissionAmount === null || commissionAmount === 0)) {
-                scenarios["S1 Marked Paid but Commission Missing"].push({ AppID: appId, Status: rawStatusValue || s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
-              }
-              if (s1Status === "Unpaid" && commissionAmount !== null && commissionAmount > 0) {
-                scenarios["S1 Marked Unpaid but Commission Exists"].push({ AppID: appId, Status: rawStatusValue || s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
+              // New Feature: Check for specific statuses
+              if (idx.s1.status) {
+                  const statusValue = r1[idx.s1.status] ? String(r1[idx.s1.status]).toLowerCase().trim() : '';
+                  let specificStatus = null;
+                  if (statusValue === '1' || statusValue.includes('pending e-sign')) {
+                      specificStatus = "Pending e-Sign";
+                  } else if (statusValue === '2' || statusValue.includes('ready to download')) {
+                      specificStatus = "Ready To Download";
+                  } else if (statusValue === '3' || statusValue.includes('payment pending') || statusValue.includes('pending payment')) {
+                      specificStatus = "Pending Payment";
+                  }
+
+                  if (specificStatus) {
+                      scenarios["S1 Records with Specific Statuses"].push({
+                          AppID: appId,
+                          IdentifiedStatus: specificStatus,
+                          OriginalStatus: r1[idx.s1.status],
+                          Amount: amount1Raw,
+                          Date: r1[idx.s1.date],
+                          S1_File: r1.sourceFile
+                      });
+                  }
               }
 
-              // New status checks based on raw string value
-              const commonStatusData = { AppID: appId, Status: rawStatusValue, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile };
-              if (rawStatusValue.includes('downloaded')) {
-                  if (commissionAmount === 0) {
-                      scenarios["S1 Downloaded with Zero Commission"].push(commonStatusData);
-                  }
+              if (s1Status === "Paid" && (commissionAmount === null || commissionAmount === 0)) {
+                scenarios["S1 Marked Paid but Commission Missing"].push({ AppID: appId, Status: s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
               }
-              if (rawStatusValue.includes('ready to download') || rawStatusValue.includes('ready to dwonload')) {
-                  scenarios["S1 Ready to Download List"].push(commonStatusData);
-                  if (commissionAmount === 0) {
-                      scenarios["S1 Ready to Download with Zero Commission"].push(commonStatusData);
-                  }
+              if (s1Status === "Unpaid" && commissionAmount !== null && commissionAmount !== 0) {
+                scenarios["S1 Marked Unpaid but Commission Exists"].push({ AppID: appId, Status: s1Status, Commission: commissionAmount, Amount: amount1Raw, Date: r1[idx.s1.date], S1_File: r1.sourceFile });
               }
 
               const mergedRecord = { AppID: appId, Source: 'S1', Status: s1Status, Amount: amount1GST, PreGSTAmount: amount1Raw, Date: r1[idx.s1.date], File: r1.sourceFile, Commission: commissionAmount };
@@ -1495,8 +1460,9 @@ APP789"></textarea>
               if (analysisOptions.includeCommission && s1Status === "Paid" && commissionAmount !== null) {
                   const desiredCommission = (analysisOptions.desiredCommission / 100) * amount1Raw;
                   const commissionDiff = commissionAmount - desiredCommission;
-                  
-                  const commonData = { AppID: appId, Amount: amount1Raw, CommissionReceived: commissionAmount, CommissionDesired: desiredCommission, Difference: commissionDiff, S1_File: r1.sourceFile, Status: rawStatusValue };
+                  const percentageDiff = desiredCommission !== 0 ? (commissionDiff / desiredCommission) * 100 : (commissionDiff > 0 ? Infinity : -Infinity);
+
+                  const commonData = { AppID: appId, Amount: amount1Raw, CommissionReceived: commissionAmount, CommissionDesired: desiredCommission, Difference: commissionDiff, Percentage: percentageDiff, S1_File: r1.sourceFile, Status: s1Status };
                   if (commissionDiff > 0.01) scenarios["Commission received higher than desired"].push(commonData);
                   else if (commissionDiff < -0.01) scenarios["Commission received lower than desired"].push(commonData);
               }
@@ -1504,15 +1470,12 @@ APP789"></textarea>
               if (r2) {
                 const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
                 const amountDiff = Math.abs(amount2 - amount1GST) > 0.001;
-                const commonData = { AppID: appId, S1_Amount: amount1GST, S2_Amount: amount2, Difference: (amount2 - amount1GST), S1_Date: r1[idx.s1.date], S2_Date: r2[idx.s2.date], S1_File: r1.sourceFile, S1_Status: rawStatusValue };
+                const commonData = { AppID: appId, S1_Amount: amount1GST, S2_Amount: amount2, Difference: (amount2 - amount1GST), S1_Date: r1[idx.s1.date], S2_Date: r2[idx.s2.date], S1_File: r1.sourceFile, S2_File: s2.fileName, Status: s1Status };
 
-                if (s1Status === "Paid") { 
-                    if (amountDiff) scenarios["S2 Paid, S1 Paid but amount different"].push(commonData); 
-                } else { 
-                    scenarios[amountDiff ? "S2 Paid, S1 Unpaid and amount different" : "S2 Paid, S1 Unpaid"].push(commonData); 
-                }
+                if (s1Status === "Paid") { if (amountDiff) scenarios["S2 Paid, S1 Paid but amount different"].push(commonData); } 
+                else { scenarios[amountDiff ? "S2 Paid, S1 Unpaid and amount different" : "S2 Paid, S1 Unpaid"].push(commonData); }
               } else if (s1Status === "Paid") {
-                scenarios["S1 Paid but missing in S2"].push({ AppID: appId, S1_Amount: amount1GST, S1_Date: r1[idx.s1.date], S1_File: r1.sourceFile, S1_Status: rawStatusValue });
+                scenarios["S1 Paid but missing in S2"].push({ AppID: appId, S1_Amount: amount1GST, S1_Date: r1[idx.s1.date], S1_File: r1.sourceFile, Status: s1Status });
               }
             });
           });
@@ -1520,7 +1483,7 @@ APP789"></textarea>
           s2Map.forEach((r2, appId) => {
             const amount2 = Utils.safeParseFloat(r2[idx.s2.amount]);
             if (!s1Map.has(appId)) {
-                scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName });
+                scenarios["S2 Paid but missing in S1"].push({ AppID: appId, S2_Amount: amount2, S2_Date: r2[idx.s2.date], S2_File: s2.fileName, Status: 'Paid' });
             }
             mergedData.push({ AppID: appId, Source: 'S2', Status: 'Paid', Amount: amount2, Date: r2[idx.s2.date], File: s2.fileName });
           });
@@ -1551,6 +1514,7 @@ APP789"></textarea>
         const { analysisOptions } = AppState.getState();
 
         const orderedScenarios = [
+          "S1 Records with Specific Statuses",
           "S1 Paid but missing in S2", "S2 Paid but missing in S1", "S2 Paid, S1 Unpaid",
           "S2 Paid, S1 Paid but amount different", "S2 Paid, S1 Unpaid and amount different",
           "Commission received higher than desired", "Commission received lower than desired",
@@ -1561,12 +1525,9 @@ APP789"></textarea>
         const stats = {
           totalAlerts: 0, totalAmountDiscrepancies: 0, totalMissingRecords: 0,
           totalDuplicates: 0, totalAmountDifference: 0, totalCommissionDifference: 0,
-          totalStatusInconsistencies: 0
+          totalStatusInconsistencies: 0, totalActionableStatuses: 0
         };
-
-        const alertableScenarios = [...orderedScenarios, "S1 Downloaded with Zero Commission", "S1 Ready to Download with Zero Commission"];
-
-        alertableScenarios.forEach(s => {
+        orderedScenarios.forEach(s => {
             const records = scenarios[s] || [];
             if(records.length === 0) return;
             stats.totalAlerts += records.length;
@@ -1578,12 +1539,14 @@ APP789"></textarea>
             else if (s.includes("Commission") && s.includes("desired")) {
                 stats.totalCommissionDifference += records.reduce((sum, r) => sum + (r.Difference || 0), 0);
             } else if (s.includes("Marked")) stats.totalStatusInconsistencies += records.length;
+            else if (s.includes("Specific Statuses")) stats.totalActionableStatuses += records.length;
         });
         
         DOM.statsGrid.innerHTML = `
           <div class="stat-card danger"><h3>Total Alerts</h3><div class="stat-value">${stats.totalAlerts}</div><div class="stat-subtext">Potential issues found</div></div>
           <div class="stat-card warning"><h3>Amount Discrepancies</h3><div class="stat-value">${stats.totalAmountDiscrepancies}</div><div class="stat-subtext">Payment amount mismatches</div></div>
           <div class="stat-card info"><h3>Missing Records</h3><div class="stat-value">${stats.totalMissingRecords}</div><div class="stat-subtext">Records in one source only</div></div>
+          ${stats.totalActionableStatuses > 0 ? `<div class="stat-card info"><h3>Actionable Statuses</h3><div class="stat-value">${stats.totalActionableStatuses}</div><div class="stat-subtext">e-Sign, Download, Pending Payment</div></div>` : ''}
           <div class="stat-card ${stats.totalAmountDifference >= 0 ? 'success' : 'danger'}"><h3>Net Amount Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalAmountDifference)}</div><div class="stat-subtext">S2 vs S1 total difference</div></div>
           ${analysisOptions.includeCommission ? `<div class="stat-card ${stats.totalCommissionDifference >= 0 ? 'danger' : 'success'}"><h3>Net Commission Difference</h3><div class="stat-value">${Utils.formatNumberForDisplay(stats.totalCommissionDifference)}</div><div class="stat-subtext">Received vs. Desired</div></div>` : ''}
           ${stats.totalStatusInconsistencies > 0 ? `<div class="stat-card danger"><h3>Status Inconsistencies</h3><div class="stat-value">${stats.totalStatusInconsistencies}</div><div class="stat-subtext">Paid/Unpaid mismatches</div></div>` : ''}
@@ -1593,10 +1556,12 @@ APP789"></textarea>
         orderedScenarios.forEach(scenarioName => {
             const records = scenarios[scenarioName] || [];
             const isEmpty = records.length === 0;
-            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') || scenarioName.includes('Unpaid') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
+            if (isEmpty && scenarioName === "S1 Records with Specific Statuses") return; // Don't show the box if empty
+
+            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
             summaryHtml += `<div class="${boxClass}"><div class="alert-title">${scenarioName}</div><div class="alert-count">${records.length} records</div>`;
             if (!isEmpty) {
-                const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h.toLowerCase() !== 'status');
+                const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h !== 'Status' && !h.includes('Original'));
                 summaryHtml += `<table class="alert-table"><thead><tr>${headers.map(h => `<th>${_.startCase(h)}</th>`).join('')}</tr></thead><tbody>`;
                 records.slice(0, 5).forEach(rec => {
                     summaryHtml += `<tr>${headers.map(h => {
@@ -1629,7 +1594,7 @@ APP789"></textarea>
                 detailedHtml += `<tr>${headers.map(h => {
                     let val = rec[h];
                     let cls = '';
-                    if (h === 'Status' && typeof val === 'string') cls = val.toLowerCase().includes('paid') ? 'paid-cell' : 'unpaid-cell';
+                    if (h === 'Status') cls = val === 'Paid' ? 'paid-cell' : 'unpaid-cell';
                     if (typeof val === 'number') {
                         cls += ' amount-cell';
                         if (h === 'Difference' || h === 'Percentage') cls += val < 0 ? ' negative' : ' positive';
@@ -1653,34 +1618,6 @@ APP789"></textarea>
             mergedHtml += `</tbody></table></div>`;
             DOM.mergedResults.innerHTML = mergedHtml;
         }
-
-        const createTabContent = (records, container) => {
-            if (!container) return;
-            if (!records || records.length === 0) {
-                container.innerHTML = `<p style="padding: 1rem; color: var(--gray-500);">No records found for this category.</p>`;
-                return;
-            }
-            const headers = Object.keys(records[0]);
-            let html = `<div style="margin-bottom:1rem;"><strong>Total Records:</strong> ${records.length}</div>`;
-            html += `<div style="overflow-x:auto;"><table class="alert-table"><thead><tr>${headers.map(h => `<th>${_.startCase(h)}</th>`).join('')}</tr></thead><tbody>`;
-            records.forEach(rec => {
-                html += `<tr>${headers.map(h => {
-                    let val = rec[h];
-                    let cls = '';
-                    if (typeof val === 'number') {
-                        cls = 'amount-cell';
-                        val = Utils.formatNumberForDisplay(val);
-                    }
-                    return `<td class="${cls}">${val !== null && val !== undefined ? val : 'N/A'}</td>`;
-                }).join('')}</tr>`;
-            });
-            html += `</tbody></table></div>`;
-            container.innerHTML = html;
-        };
-        
-        createTabContent(scenarios["S1 Downloaded with Zero Commission"], DOM.downloadedZeroCommResults);
-        createTabContent(scenarios["S1 Ready to Download with Zero Commission"], DOM.readyToDownloadZeroCommResults);
-        createTabContent(scenarios["S1 Ready to Download List"], DOM.readyToDownloadListResults);
         
         DOM.resultsSection.style.display = 'block';
         DOM.resultsSection.scrollIntoView({ behavior: 'smooth' });
@@ -1806,25 +1743,6 @@ APP789"></textarea>
         DOM.exportDetailedBtn.addEventListener('click', Analyzer.exportDetailedResults);
         DOM.exportMergedBtn.addEventListener('click', Analyzer.exportMergedData);
         DOM.compareManualBtn.addEventListener('click', ManualComparison.compareAppIds);
-
-        DOM.exportDownloadedZeroCommBtn.addEventListener('click', () => {
-            const { analysisResults } = AppState.getState();
-            if (analysisResults && analysisResults["S1 Downloaded with Zero Commission"]) {
-                Analyzer.exportToExcel([{ name: "S1_Downloaded_0_Comm", records: analysisResults["S1 Downloaded with Zero Commission"] }], "S1_Downloaded_Zero_Commission");
-            } else { Utils.showError("No data to export."); }
-        });
-        DOM.exportReadyToDownloadZeroCommBtn.addEventListener('click', () => {
-            const { analysisResults } = AppState.getState();
-            if (analysisResults && analysisResults["S1 Ready to Download with Zero Commission"]) {
-                Analyzer.exportToExcel([{ name: "S1_Ready_Download_0_Comm", records: analysisResults["S1 Ready to Download with Zero Commission"] }], "S1_Ready_To_Download_Zero_Commission");
-            } else { Utils.showError("No data to export."); }
-        });
-        DOM.exportReadyToDownloadListBtn.addEventListener('click', () => {
-            const { analysisResults } = AppState.getState();
-            if (analysisResults && analysisResults["S1 Ready to Download List"]) {
-                Analyzer.exportToExcel([{ name: "S1_Ready_Download_List", records: analysisResults["S1 Ready to Download List"] }], "S1_Ready_To_Download_List");
-            } else { Utils.showError("No data to export."); }
-        });
         
         DOM.navItems.forEach(item => {
           item.addEventListener('click', (e) => {
@@ -1853,5 +1771,6 @@ APP789"></textarea>
       }
     });
   </script>
+
 </body>
 </html>
