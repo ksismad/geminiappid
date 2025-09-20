@@ -1584,7 +1584,7 @@ APP789"></textarea>
         orderedScenarios.forEach(scenarioName => {
             const records = scenarios[scenarioName] || [];
             const isEmpty = records.length === 0;
-            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') || scenarioName.includes('Zero Commission') ? ' danger' : (scenarioName.includes('missing in S1') || scenario_name.includes('Duplicates') ? ' warning' : ' info')));
+            let boxClass = 'alert-box' + (isEmpty ? ' empty' : (scenarioName.includes('missing in S2') || scenarioName.includes('Marked') || scenarioName.includes('Zero Commission') ? ' danger' : (scenarioName.includes('missing in S1') || scenarioName.includes('Duplicates') ? ' warning' : ' info')));
             summaryHtml += `<div class="${boxClass}"><div class="alert-title">${scenarioName}</div><div class="alert-count">${records.length} records</div>`;
             if (!isEmpty) {
                 const headers = Object.keys(records[0]).filter(h => !/file/i.test(h) && h.toLowerCase() !== 'status');
